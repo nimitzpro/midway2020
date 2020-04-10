@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="index.css" />
+</head>
+<body>
+    <video loop muted autoplay src="midwayvid.mp4" id="vid"></video>
+    <main>
+        <!-- <button onClick="init()" style="display:inline-block;position:fixed;top:20%;left:0;right:0;margin-left:auto;margin-right:auto;z-index:3;"><h1 style="text-align:center;">Naval Battles</h1></button> -->
+        <header>
+            <h1 style="display:inline-block;">Naval Battles</h1>
+
+            <span id="scenarios" class="shipListWrapper">
+                <h2>Scenarios</h2>
+                <ul class="shipList"></ul>
+            </span>
+            <span id="carriers" class="shipListWrapper">
+                <h2>Aircraft Carriers</h2>
+                <ul class="shipList"></ul>
+            </span>
+            <span id="battleships" class="shipListWrapper">
+                <h2>Battleships</h2>
+                <ul class="shipList"></ul>
+            </span>
+
+            <button id="switchTeam" onClick="switchTeam()">Team A</button>
+
+            <button id="start" onClick="init()">Start</button>
+
+        </header>
+        <section id="teams">
+            <div>
+                <h2>Teams</h2>
+            </div>
+            <article><h3><input type="text" name="teamAName" id="teamAName" /></h3><ul id="teamA"></ul></article>
+            <article><h3><input type="text" name="teamBName" id="teamBName" /></h3><ul id="teamB"></ul></article>
+        </section>
+    </main>
+    <div style="overflow-x:hidden; overflow-y: hidden;"><canvas></canvas></div>
+    <!-- <script src="shipTypes.json"></script> -->
+    <script src="index.js"></script>
+</body>
+</html>

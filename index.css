@@ -1,0 +1,210 @@
+*{
+    margin:0;
+    padding:0;
+}
+body{
+    background-image: url("takao.jpg");
+    background-attachment: fixed;
+    background-repeat: no-repeat;
+    background-size: cover;
+    font-size: 16px;
+}
+main{
+    color:black;
+    /* background-image:linear-gradient(to bottom, rgba(255, 255, 255, 0.5),rgba(255, 255, 255, 0.5)); */
+    background-color:rgba(209, 209, 209, 0.65);
+    display:block;
+    width:100%;
+    /* min-height:100%;  */
+    transition: all 1s ease;
+    /* position:fixed; */
+    /* z-index:3; */
+    text-align:center;
+    /* overflow-y: auto;
+    overflow-x: auto; */
+}
+main:hover{
+    background-color:rgb(207, 207, 207);
+}
+h1{
+    padding:1em 1em 0.25em 0.5em;
+    background-image:linear-gradient(to top, rgba(255,255,255,0.5),rgba(255,255,255,0.5)),url("takao.jpg");
+    background-size: cover;
+    background-position-y: 25%;
+}
+.shipList{
+    display:none;
+    position:absolute;
+    list-style-type: none;
+    background-image:linear-gradient(to bottom, rgba(180,180,180,1), white);
+    /* box-shadow:1em 1em 0.5em rgba(0,0,0,0.25), -1em 1em 0.5em rgba(0,0,0,0.25); */
+    /* box-shadow:-1em 1em 0.5em rgba(0,0,0,0.25); */
+
+    border-left: 0.1em solid black; 
+    border-right: 0.1em solid black;
+}
+.shipListWrapper{
+    cursor:pointer;
+    border-bottom:0.1em dashed black;
+    display:inline-block;
+    /* margin:0 auto; */
+    position:relative;
+    padding:0.5em;
+}
+.shipListWrapper + .shipListWrapper{
+    border-left:1px solid black;
+}
+.shipListWrapper:hover .shipList{
+    display:inline-block;
+    top:2em;
+    left:0;
+    width:100%;
+    /* right:auto !important; */
+}
+.shipListWrapper:hover h2{
+    text-decoration: underline;
+}
+.shipList li{
+    background-color:transparent;
+    transition: all 1s ease;
+    padding:0.5em;
+    font-size:1.25em;
+    border-bottom:0.1em solid black;
+}
+.shipList li:hover{
+    background-color:crimson;
+}
+/* button{
+    text-align:center;
+} */
+canvas{
+    display:none;
+    overflow-x : hidden !important;
+    overflow-y : hidden !important;
+    /* display:block;
+    margin:auto auto; */
+}
+#teams{
+    width:50%;
+    margin:0 auto;
+    font-size: 1.5em;
+    display:flex;
+    flex-wrap: wrap;
+}
+#teams div{
+    flex-basis:100%;
+    font-size: 1em;
+    padding:0 0;
+    margin:0 0;
+}
+#teams>article{
+    flex:1;
+}
+/* article{
+    display:flex;
+    flex-wrap:wrap;
+    align-items: center; 
+    justify-content: center;
+    font-size: 1.5em;
+    text-align: center;
+} */
+article>h3{
+    flex-basis: 100%;
+}
+article ul h2{
+    display:inline-block;
+}
+article ul{
+flex:1;
+} 
+article>ul{
+background-image:linear-gradient(rgba(180,180,180,0.65),rgba(150,150,150,0.65)),url("us2.jfif");
+text-align: left;
+font-family:CarroisGothicSC;
+font-weight: 1000;
+list-style-type: none;
+background-size: cover;
+background-repeat:no-repeat;
+background-position-x: right;
+/* padding-bottom:1em; */
+}
+article + article>ul{
+border-left:0.1em solid black;
+background-image:linear-gradient(rgba(180,180,180,0.65),rgba(150,150,150,0.65)),url("japan2.jfif");
+background-size: cover;
+background-repeat:no-repeat;
+background-position-x: left;
+}
+article ul > li:before {
+content: "- ";  
+}
+article ul li{
+padding:0.25em 0.15em 0 0.1em;
+}
+article>h3{
+color:rgb(81,9,9);
+flex-basis:100%;
+margin-top:0.25em;
+padding:1em 0;
+background-color:rgb(255, 255, 255);
+border-bottom: 0.1em solid black;
+}
+article + article>h3{
+border-left: 0.1em solid black;
+}
+video{
+position:fixed;
+left:0;
+top:0;
+z-index:-1;
+width:100%;
+height:auto;
+}
+input{
+border: 0;
+color:inherit;
+font-size: inherit;
+font-family: inherit;
+font-weight: inherit;
+text-align: center;
+}
+
+#switchTeam, #start{
+    border:0;
+    display:inline-block;
+    padding:0 1em;
+    color:crimson;
+    background-color:black;
+    transition: all 0.25s ease;
+    font-size:1.5em;
+    align-self: normal;
+    justify-self: flex-end;
+    cursor: pointer;
+    /* height:100%; */
+}
+#switchTeam:hover, #start:hover{
+    /* background-image:linear-gradient(to top, rgba(0,0,0,0.5),rgba(0,0,0,0.5)),url("us2.jfif"); */
+    background-color:crimson;
+    color:black;
+}
+header{
+    background-color: white;
+    text-align: left;
+    display:flex;
+    flex-wrap: nowrap;
+    justify-content: flex-start;
+    align-items: baseline;
+}
+
+section h2{
+    padding-top:1em;
+}
+
+section button{
+    border:none;
+    background:transparent;
+    color:crimson;
+}
+section button:hover{
+    text-decoration: underline;
+}
