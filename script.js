@@ -10,6 +10,7 @@ let offsetY = 0;
 let cWidth;
 let cHeight;
 let cameraLock = false;
+let isFiringManually = false;
 
 let [akagiIMG, enterpriseIMG, kagaIMG, hiryuIMG, soryuIMG, yamatoIMG, iowaIMG, bismarckIMG, hoodIMG] = [new Image(), new Image(), new Image(), new Image(), new Image(), new Image(), new Image(), new Image(), new Image()];
 
@@ -102,7 +103,7 @@ function addShip(shipName){
     li.innerHTML = shipName;
     teamElement.appendChild(li);
     let ship = shipTypes.find(x => x.name === shipName);
-    let a = {autofire:ship.autofire, range:ship.range, team:selectedTeam, name:ship.name, nation:ship.nation, type:ship.type, hp:ship.hp, maxHP: ship.maxHP, x:0, y:0, beam:ship.beam, length:ship.length, speedSetting:0, speed:0, image:ship.image, rotation:0, timeSinceReload:0, guns:loopThrough(ship.guns), reloadTime:ship.reloadTime, projectiles:projectiles(ship.projectiles)}
+    let a = {autofire:ship.autofire, range:ship.range, team:selectedTeam, name:ship.name, nation:ship.nation, type:ship.type, hp:ship.hp, maxHP: ship.maxHP, x:0, y:0, beam:ship.beam, length:ship.length, speedSetting:0, speed:0, image:ship.image, rotation:0, timeSinceReload:0, guns:loopThrough(ship.guns), projectiles:projectiles(ship.projectiles)}
     ships.push(a);
     console.log(a);
 }
@@ -143,7 +144,7 @@ function scenario(name){
         let ship = shipTypes.find(x => x.name === i.name);
         li.innerHTML = i.name;
         teams[i.team].appendChild(li);
-        let a = {autofire:ship.autofire, range:ship.range, team:i.team, name:ship.name, nation:ship.nation, type:ship.type, hp:ship.hp, maxHP: ship.maxHP, x:0, y:0, beam:ship.beam, length:ship.length, speedSetting:0, speed:0, image:ship.image, rotation:0, timeSinceReload:0, guns:loopThrough(ship.guns), reloadTime:ship.reloadTime, projectiles:projectiles(ship.projectiles)}
+        let a = {autofire:ship.autofire, range:ship.range, team:i.team, name:ship.name, nation:ship.nation, type:ship.type, hp:ship.hp, maxHP: ship.maxHP, x:0, y:0, beam:ship.beam, length:ship.length, speedSetting:0, speed:0, image:ship.image, rotation:0, timeSinceReload:0, guns:loopThrough(ship.guns), projectiles:projectiles(ship.projectiles)}
         ships.push(a);
         console.log(a);
     }
@@ -155,14 +156,43 @@ function getMousePos(e) {
       x: e.clientX - rect.left,
       y: e.clientY - rect.top
     };
-    if(m.x > 10 && m.x < 110 && m.y > canvas.height - (12*((ships[selected].guns.length+3))) && m.y < canvas.height - (12*((ships[selected].guns.length+3)))+20){
+
+    if(isFiringManually){
+        let i = ships[selected];
+        for(let a of i.guns){
+            if(a.timeSinceReload >= a.reloadTime){
+                let posX = Math.sin(i.rotation*(Math.PI/180))*(a.x*2); 
+                let posY = Math.cos(i.rotation*(Math.PI/180))*(a.y*2); 
+                console.log(m.x,m.y)
+                console.log(posX,posY)
+
+                let rotation = Math.atan((m.y-(offsetY+posY))/(m.x-(offsetX+posX)));
+                if(posX > m.x) rotation = rotation + Math.PI;
+                console.log(rotation)
+                let distance = Math.sqrt((posX-(m.x))**2 + (posY-(m.y))**2);
+
+                fire(i.x+posX, i.y+posY, rotation, distance, i.projectiles, a.calibre, a.damage);
+                a.timeSinceReload = 0;
+            }
+        }
+        isFiringManually = false;
+        document.querySelector('canvas').style.cursor = 'default';
+    }
+    else if(m.x > 10 && m.x < 110 && m.y > canvas.height - (12*((ships[selected].guns.length+3))) && m.y < canvas.height - (12*((ships[selected].guns.length+3)))+20){
         ships[selected].autofire = ships[selected].autofire ? false : true;
     }
-    for(let i of ships){
-        if(m.x <= i.x+i.length-offsetX && m.x >= i.x-offsetX && m.y >= i.y-offsetY && m.y <= i.y+i.beam-offsetY){
-                    selected = ships.indexOf(i);
-                    console.log("Selected ship",selected, "name : ", i.name);
-                }
+    // ctx.fillRect(130, canvas.height - 75, ctx.measureText("FIRE").width * 2, 30);
+    else if(m.x > 130 && m.x < 130+ctx.measureText("FIRE").width * 2 && m.y > canvas.height - 75 && m.y < canvas.height-45 && !ships[selected].autofire){
+        document.querySelector('canvas').style.cursor = 'url(\'firing_cursor.png\'), auto';
+        isFiringManually = true;
+    }
+    else{
+        for(let i of ships){
+            if(m.x <= i.x+i.length-offsetX && m.x >= i.x-offsetX && m.y >= i.y-offsetY && m.y <= i.y+i.beam-offsetY){
+                        selected = ships.indexOf(i);
+                        console.log("Selected ship",selected, "name : ", i.name);
+                    }
+        }
     }
   }
 
@@ -374,34 +404,46 @@ function render(){
             let eY;
             let eRotation;
             let targetAcquired = false;
-            for(let q of ships){
-                if(q.team !== i.team && q.hp > 0){
-                    if(Math.sqrt((i.x-q.x)**2+(i.y-q.y)**2) < eDistance){
-                        eDistance = Math.sqrt((i.x-q.x)**2+(i.y-q.y)**2);
-                        eX = q.x;
-                        eY = q.y;
-                        enemySpeed = q.speed;
-                        enemyRotation = q.rotation;
-                        targetAcquired = true;
-                        console.log("TARGET ACQUIRED")
+            if(i.autofire){
+                for(let q of ships){
+                    if(q.team !== i.team && q.hp > 0){
+                        if(Math.sqrt((i.x-q.x)**2+(i.y-q.y)**2) < eDistance){
+                            eDistance = Math.sqrt((i.x-q.x)**2+(i.y-q.y)**2);
+                            eX = q.x;
+                            eY = q.y;
+                            enemySpeed = q.speed;
+                            enemyRotation = q.rotation;
+                            targetAcquired = true;
+                            console.log("TARGET ACQUIRED")
+                        }
                     }
                 }
             }
             // ctx.fillText(`Auto-fire : ${_x}`, (canvas.width / 2) - 50, canvas.height - 4)
 
-            ctx.fillStyle = "Black";
-            ctx.font = "16px Arial";
-            ctx.fillText("Weapons Reload Time", 10, canvas.height - (12*((i.guns.length+4))));
+            if(ships.indexOf(i) === selected){
+                ctx.fillStyle = "Black";
+                ctx.font = "16px Arial";
+                ctx.fillText("Weapons Reload", 10, canvas.height - (12*((i.guns.length+4))));
+    
+    
+                ctx.fillStyle = "rgba(255,255,255,1)"
+                ctx.fillRect(10, canvas.height - (12*((i.guns.length+3))), 100, 20);
+                ctx.fillStyle = "black";
+                ctx.font = "14px sans-serif";
+                let _x = ships[selected].autofire ? "Yes" : "No";
+                ctx.fillText(`Auto-fire : ${_x}`, 12, canvas.height - (12*((i.guns.length+2))-4));
+    
+    
+                ships[selected].autofire ? ctx.fillStyle = "rgb(81,9,9)" : ctx.fillStyle = "crimson";
+                ctx.fillRect(130, canvas.height - 75, ctx.measureText("FIRE").width * 2, 30);
+                ctx.fillStyle = "black";
+                ctx.font = "20px sans-serif";
+                ctx.fillText('FIRE', 130 + ctx.measureText("FIRE").width / 4.5, canvas.height - 52.5);
+            }
 
 
-            ctx.fillStyle = "rgba(255,255,255,1)"
-            ctx.fillRect(10, canvas.height - (12*((i.guns.length+3))), 100, 20);
-            ctx.fillStyle = "black";
-            ctx.font = "14px sans-serif";
-            let _x = ships[selected].autofire ? "Yes" : "No";
-            ctx.fillText(`Auto-fire : ${_x}`, 12, canvas.height - (12*((i.guns.length+2))-4));
-
-            if(targetAcquired){
+            if(targetAcquired && i.autofire){
                 for(let a of i.guns){
                     if(a.timeSinceReload >= a.reloadTime){
                         console.log("a.x, a.y:", a.x, a.y);
@@ -439,9 +481,11 @@ function render(){
                 a.timeSinceReload++;
                 // ctx.fillStyle = "white";
                 // ctx.fillRect(10, canvas.height - (12*((i.guns.length+1) - a.number+1)), 50, 10);
-                ctx.fillStyle = "rgb(150,255,150)";
-                if(a.timeSinceReload / a.reloadTime === 1) ctx.fillStyle = "rgb(40,40,180)"; 
-                ctx.fillRect(10, canvas.height - (12*((i.guns.length+1) - a.number+1)), 80*(a.timeSinceReload / a.reloadTime), 10);
+                if(ships.indexOf(i) === selected){
+                    ctx.fillStyle = "rgb(150,255,150)";
+                    if(a.timeSinceReload / a.reloadTime === 1) ctx.fillStyle = "rgb(40,40,180)"; 
+                    ctx.fillRect(10, canvas.height - (12*((i.guns.length+1) - a.number+1)), 80*(a.timeSinceReload / a.reloadTime), 10);
+                }
                 }
             }
             else{
@@ -449,9 +493,11 @@ function render(){
                     if(a.timeSinceReload < a.reloadTime) a.timeSinceReload++;
                     // ctx.fillStyle = "white";
                     // ctx.fillRect(10, canvas.height - (12*((i.guns.length+1) - a.number+1)), 50, 10);
-                    ctx.fillStyle = "rgb(150,255,150)";
-                    if(a.timeSinceReload / a.reloadTime === 1) ctx.fillStyle = "rgb(40,40,180)"; 
-                    ctx.fillRect(10, canvas.height - (12*((i.guns.length+1) - a.number+1)), 80*(a.timeSinceReload / a.reloadTime), 10);
+                    if(ships.indexOf(i) === selected){
+                        ctx.fillStyle = "rgb(150,255,150)";
+                        if(a.timeSinceReload / a.reloadTime === 1) ctx.fillStyle = "rgb(40,40,180)"; 
+                        ctx.fillRect(10, canvas.height - (12*((i.guns.length+1) - a.number+1)), 80*(a.timeSinceReload / a.reloadTime), 10);
+                    }
                 }
             }
         }
@@ -491,12 +537,15 @@ function fire(x,y,rotation,distance,projectiles,calibre,damage){
     while(i < projectiles.length){
         if(projectiles[i].visible === false){
             projectiles[i].distance = distance+Math.random()*30;
+            // projectiles[i].distance = distance;
             projectiles[i].visible = true;
             projectiles[i].x = x-1;
             projectiles[i].y = y-1;
             projectiles[i].rotation = rotation+Math.random()*0.1;
+            // projectiles[i].rotation = rotation;
             projectiles[i].calibre = calibre;
             projectiles[i].damage = damage*Math.random() + 100;
+            // projectiles[i].damage = damage;
             break;
         }
         i++;
