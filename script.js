@@ -55,8 +55,9 @@ let shipTypes = [
 ];
 
 let scenarios = [
-    {name:"Hood vs Bimarck",teamNames:["Royal Navy", "Kriegsmarine"],ships:[{"name":"Hood","team":0},{"name":"Bismarck","team":1}]},
-    {name:"Iowa vs Yamato",teamNames:["US Navy","Imperial Japanese Navy"],ships:[{"name":"Iowa","team":0},{"name":"Yamato","team":1}]}
+    {name:"Hood vs Bimarck",teamNames:["Royal Navy", "Kriegsmarine"],ships:[{name:"Hood",team:0},{name:"Bismarck",team:1}]},
+    {name:"Iowa vs Yamato",teamNames:["US Navy","Imperial Japanese Navy"],ships:[{name:"Iowa",team:0},{name:"Yamato",team:1}]},
+    {name:"The Carriers at Midway",teamNames:["US Navy","Imperial Japanese Navy"],ships:[{name:"Enterprise",team:0},{name:"Hornet",team:0},{name:"Yorktown",team:0},{name:"Akagi",team:1},{name:"Kaga",team:1},{name:"Hiryuu",team:1},{name:"Soryuu",team:1}]}
 ];
 
 let stats = [];
@@ -103,14 +104,25 @@ function setup(){
     }
 }
 
-function addShip(shipName){
+function addShip(shipName, scenarioTeam){
     console.log("Added",shipName, "to battle");
+    console.log("TEAM", scenarioTeam)
     let teamElement;
-    if(selectedTeam === 0){
-        teamElement = document.querySelector("#teamA");
+    if(scenarioTeam){
+        if(scenarioTeam === 0){
+            teamElement = document.querySelector("#teamA");
+        }
+        else{
+            teamElement = document.querySelector("#teamB");
+        }
     }
     else{
-        teamElement = document.querySelector("#teamB");
+        if(selectedTeam === 0){
+            teamElement = document.querySelector("#teamA");
+        }
+        else{
+            teamElement = document.querySelector("#teamB");
+        }
     }
     let li = document.createElement('li');
     li.innerHTML = shipName;
@@ -118,9 +130,9 @@ function addShip(shipName){
     let ship = shipTypes.find(x => x.name === shipName);
     let a;
     if(ship.type === "Aircraft Carrier"){
-        a = {autofire:ship.autofire, deckIsFree:ship.deckIsFree, launchTime:ship.launchTime, launchTimeDuration:ship.launchTimeDuration, range:ship.range, team:selectedTeam, name:ship.name, nation:ship.nation, type:ship.type, hp:ship.hp, maxHP: ship.maxHP, x:0, y:0, beam:ship.beam, length:ship.length, maxSpeed: ship.maxSpeed, speedSetting:0, speed:0, image:ship.image, rotation:0, squadrons:loopThroughPlanes(ship.squadrons), projectiles:projectiles(ship.projectiles)}
+        a = {autofire:ship.autofire, deckIsFree:ship.deckIsFree, launchTime:ship.launchTime, launchTimeDuration:ship.launchTimeDuration, range:ship.range, team:(scenarioTeam ? scenarioTeam : selectedTeam), name:ship.name, nation:ship.nation, type:ship.type, hp:ship.hp, maxHP: ship.maxHP, x:0, y:0, beam:ship.beam, length:ship.length, maxSpeed: ship.maxSpeed, speedSetting:0, speed:0, image:ship.image, rotation:0, squadrons:loopThroughPlanes(ship.squadrons), projectiles:projectiles(ship.projectiles)}
     }
-    else a = {autofire:ship.autofire, range:ship.range, team:selectedTeam, name:ship.name, nation:ship.nation, type:ship.type, hp:ship.hp, maxHP: ship.maxHP, x:0, y:0, beam:ship.beam, length:ship.length, maxSpeed: ship.maxSpeed, speedSetting:0, speed:0, image:ship.image, rotation:0, guns:loopThrough(ship.guns), projectiles:projectiles(ship.projectiles)}
+    else a = {autofire:ship.autofire, range:ship.range, team:(scenarioTeam ? scenarioTeam : selectedTeam), name:ship.name, nation:ship.nation, type:ship.type, hp:ship.hp, maxHP: ship.maxHP, x:0, y:0, beam:ship.beam, length:ship.length, maxSpeed: ship.maxSpeed, speedSetting:0, speed:0, image:ship.image, rotation:0, guns:loopThrough(ship.guns), projectiles:projectiles(ship.projectiles)}
     ships.push(a);
     console.log(a);
 }
@@ -162,23 +174,20 @@ function teamNameChange(i){
 }
 
 function scenario(name){
-    let teams = [document.querySelector("#teamA"),document.querySelector("#teamB")];
     let scen = scenarios.find(x => x.name === name);
-    [team[0], document.querySelector('#teamAName').value] = [scen.teamNames[0],scen.teamNames[0]];
-    [team[1], document.querySelector('#teamBName').value] = [scen.teamNames[1],scen.teamNames[1]];
+    [team[0], document.querySelector('#teamAName').value] = [scen.teamNames[0], scen.teamNames[0]];
+    [team[1], document.querySelector('#teamBName').value] = [scen.teamNames[1], scen.teamNames[1]];
+    ships = [];
+    let shipsToDropA = document.querySelectorAll('#teamA li');
+    let shipsToDropB = document.querySelectorAll('#teamB li');
 
-    for(let i of scen.ships){
-        let li = document.createElement('li');
-        let ship = shipTypes.find(x => x.name === i.name);
-        li.innerHTML = i.name;
-        teams[i.team].appendChild(li);
-        let a = {autofire:ship.autofire, range:ship.range, team:i.team, name:ship.name, nation:ship.nation, type:ship.type, hp:ship.hp, maxHP: ship.maxHP, x:0, y:0, beam:ship.beam, length:ship.length, maxSpeed:ship.maxSpeed, speedSetting:0, speed:0, image:ship.image, rotation:0, timeSinceReload:0, guns:loopThrough(ship.guns), projectiles:projectiles(ship.projectiles)}
-        ships.push(a);
-        console.log(a);
-    }
+    for(let x of shipsToDropA) x.remove();
+    for(let x of shipsToDropB) x.remove();
+
+    for(let i of scen.ships) addShip(i.name, i.team);
 }
 
-function getMousePos(e) {
+async function getMousePos(e) {
     var rect = canvas.getBoundingClientRect();
     let m =  {
       x: e.clientX - rect.left,
@@ -219,11 +228,21 @@ function getMousePos(e) {
         isFiringManually = true;
     }
     else{
-        for(let i of ships){
-            if(m.x <= i.x+i.length-offsetX && m.x >= i.x-offsetX && m.y >= i.y-offsetY && m.y <= i.y+i.beam-offsetY){
-                        selected = ships.indexOf(i);
-                        console.log("Selected ship",selected, "name : ", i.name);
-                    }
+        for(let q of ships){
+            console.log(m.x, m.y);
+            // if(m.x <= i.x+i.length-offsetX && m.x >= i.x-offsetX && m.y >= i.y-offsetY && m.y <= i.y+i.beam-offsetY){
+            //             selected = ships.indexOf(i);
+            //             console.log("Selected ship",selected, "name : ", i.name);
+            //         }
+            let qX1 = q.x - (q.beam + (q.length-q.beam)*Math.cos(q.rotation*(Math.PI/180))*scale) < q.x + q.beam + (q.length-q.beam)*Math.cos(q.rotation*(Math.PI/180))*scale ? q.x - (q.beam + (q.length-q.beam)*Math.cos(q.rotation*(Math.PI/180))*scale) : q.x + q.beam + (q.length-q.beam)*Math.cos(q.rotation*(Math.PI/180))*scale;
+            let qX2 = q.x - (q.beam + (q.length-q.beam)*Math.cos(q.rotation*(Math.PI/180))*scale) > q.x + q.beam + (q.length-q.beam)*Math.cos(q.rotation*(Math.PI/180))*scale ? q.x - (q.beam + (q.length-q.beam)*Math.cos(q.rotation*(Math.PI/180))*scale) : q.x + q.beam + (q.length-q.beam)*Math.cos(q.rotation*(Math.PI/180))*scale;
+            let qY1 = q.y - (q.beam + (q.length-q.beam)*Math.sin(q.rotation*(Math.PI/180))*scale) < q.y + q.beam + (q.length-q.beam)*Math.sin(q.rotation*(Math.PI/180))*scale ? q.y - (q.beam + (q.length-q.beam)*Math.sin(q.rotation*(Math.PI/180))*scale) : q.y + q.beam + (q.length-q.beam)*Math.sin(q.rotation*(Math.PI/180))*scale;
+            let qY2 = q.y - (q.beam + (q.length-q.beam)*Math.sin(q.rotation*(Math.PI/180))*scale) > q.y + q.beam + (q.length-q.beam)*Math.sin(q.rotation*(Math.PI/180))*scale ? q.y - (q.beam + (q.length-q.beam)*Math.sin(q.rotation*(Math.PI/180))*scale) : q.y + q.beam + (q.length-q.beam)*Math.sin(q.rotation*(Math.PI/180))*scale;
+            if(m.x > qX1-offsetX && m.x < qX2-offsetX && m.y > qY1-offsetY && m.y < qY2-offsetY){
+                selected = ships.indexOf(q);
+                console.log("Selected ship",selected, "name : ", q.name);
+                // stats.push({text:`${i.name} hits ${q.name}, dealing some damage`,time:Date.now()});
+            }
         }
     }
   }
@@ -253,12 +272,12 @@ function init(){
     }
 
     for(let i = 0; i < numShipsA.length; i++){
-        numShipsA[i].x = 75;
+        numShipsA[i].x = 125;
         numShipsA[i].y = ((cHeight) / (numShipsA.length+1)) *(i+1);
     }   
 
     for(let i = 0; i < numShipsB.length; i++){
-        numShipsB[i].x = cWidth - 75;
+        numShipsB[i].x = cWidth - 125;
         numShipsB[i].y = ((cHeight) / (numShipsB.length+1)) *(i+1);
         numShipsB[i].rotation = 180;
     }   
@@ -353,8 +372,8 @@ function render(){
     for(let i of ships){
 
         // positioning of hp and text
-        let tY = i.y-15*(Math.abs(Math.cos(i.rotation*(Math.PI/180))));
-        let tX = i.x-10;
+        let tY = i.y-20*(Math.abs(Math.cos(i.rotation*(Math.PI/180))));
+        let tX = i.x-(i.length/2)*scale;
 
         if(i.speed-0.0001 > ((i.maxSpeed*i.speedSetting) / 4)) i.speed-=0.005;
         else if(i.speed+0.0001 < ((i.maxSpeed*i.speedSetting) / 4)) i.speed+=0.005;

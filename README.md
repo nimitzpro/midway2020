@@ -10,6 +10,6 @@
 - Scaling
 - Audio
 
-- Move text to - 1/2 length
-- move B team ships left
+- ~~Move text to - 1/2 length~~
+- ~~move B team ships left~~
 - move selection w/ mouse - 1/2 length
