@@ -2,14 +2,21 @@
 [Link](http://nimitzpro.github.io/midway2020)
 
 
-## TTF
+## Planned
 - ~~Center the prediction shots!!~~
-- 0' firing error not sure
+- ~~0' firing error~~ (working I believe)
 - Aircraft carriers - Torpedo bombers + fighters maybe
 - CPU 
+    - ~~Move forward~~
+    - Turn around when hit map border
+    - Stay ideal distance from target
+    - Other
 - Scaling
+- Spotting
 - Audio
+- Collision mechanics
+- ~~Make pause button work~~
 
 - ~~Move text to - 1/2 length~~
 - ~~move B team ships left~~
-- move selection w/ mouse - 1/2 length
+- ~~move selection w/ mouse - 1/2 length~~

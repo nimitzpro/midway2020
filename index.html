@@ -29,20 +29,71 @@
 
             <button id="switchTeam" onClick="switchTeam()">Team A</button>
 
+
+            <button id="switchTeamPlayingAs" onClick="switchTeamPlayingAs()">Playing as Team A</button>
+
             <button id="start" onClick="init()">Start</button>
 
         </header>
         <section id="teams">
             <div>
+                <h2 id="warning" style="color:red; display:none;">Add ships to both teams</h2>
                 <h2>Teams</h2>
             </div>
             <article><h3><input type="text" name="teamAName" id="teamAName" /></h3><ul id="teamA"></ul></article>
             <article><h3><input type="text" name="teamBName" id="teamBName" /></h3><ul id="teamB"></ul></article>
         </section>
+        <section>
+            <h2>Press H for controls when in game.</h2>
+        </section>
     </main>
     <div style="overflow-x:hidden; overflow-y: hidden;"><canvas></canvas></div>
+    <div id="help" style="display:none;">
+        <h1>Help</h1>
+        <h3>Selecting Ships</h3>
+        <ul>
+            <li>Use the Left Mouse Button to select different ships</li>
+            <li>Clicking on a ship icon at the top of the screen selects that ship and focuses it</li>
+        </ul>
+        <h3>Camera Controls</h3>
+        <ul>
+            <li>Double clicking LMB or pressing F toggles camera focus on the selected ship</li>
+            <li>Using the Arrow Keys or moving the mouse near the edge of the screen will move the camera in the desired direction</li>
+        </ul>
+        <h3>Ship Movement and Controls</h3>
+        <ul>
+            <li>Clicking the Auto-steer button disables auto-steer, allowing you to turn  and set speed manually by pressing the below buttons
+                <ul>
+                    <li>W and S increase and decrease speed setting of selected ship</li>
+                    <li>A and D turn the ship left and right</li></ul>
+            </li>
+            <li>Clicking the Auto-fire button disables auto-fire, allowing you to fire guns manually by pressing the fire button and then the target location when the guns are reloaded</li>
+        </ul>
+        <h3>Aircraft Camera Controls (To use with focusing)</h3>
+        <ul>
+            <li>1 selects the 1st squadron of the selected carrier</li>
+            <li>2 selects the 2nd, etc.</li>
+            <li>` returns the selection to the carrier</li>
+        </ul>
+        <h3>Other</h3>
+        <ul>
+            <li>H toggles this help screen</li>
+            <li>J hides the GUI</li>
+            <li>K hides the grid</li>
+            <li>Press P to pause the game</li>
+        </ul>
+        <h3 style="text-align: center; color:crimson;">Press Q to end the game and go to the home screen</h3>
+    </div>
+    <div id="pausedscreen" style="top:0; left:0;width:100%; height:100%; background-color: rgba(0,0,0,0.25); z-index:3; position:fixed; display:none; text-align:center;">
+        <div id="victoryscreen" style="display:none;">
+            <h1></h1>
+            <h3>Battle logs</h3>
+            <ul></ul>
+        </div>
+    </div>
+    <h2 id="quitgame" style="display:none;"><strong>Quit game?<br /> Q = Quit, C = Cancel</strong></h2>
     <!-- <audio src="mkaliez.mp3" controls /> -->
-    
+
     <!-- <script src="shipTypes.json"></script> -->
     <script src="script.js"></script>
 </body>

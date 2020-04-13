@@ -1,7 +1,11 @@
 let canvas;
 let ctx;
 let ships = [];
+let numShipsA = [];
+let numShipsB = [];
 let selected;
+let selectedPlane;
+let playingAsTeam = 0;
 let team = ["Team A","Team B"];
 selectedTeam = 0;
 let scale = 0.6;
@@ -9,12 +13,23 @@ let offsetX = 0;
 let offsetY = 0;
 let cWidth;
 let cHeight;
-let cameraLock = false;
+let cameraLock = true;
 let isFiringManually = false;
+let helpEnabled = false;
+let hudEnabled = true;
+let gridEnabled = true;
+let isPaused = false;
+let intervalID;
+let startTime;
+
+let [carrierIMG, battleshipIMG] = [new Image(), new Image()];
 
 let [akagiIMG,  kagaIMG, hiryuIMG, soryuIMG, enterpriseIMG, hornetIMG, yorktownIMG, yamatoIMG, iowaIMG, bismarckIMG, hoodIMG] = [new Image(), new Image(), new Image(), new Image(), new Image(), new Image(), new Image(), new Image(), new Image(), new Image(), new Image()];
 
 let [a6m2IMG, b5n2IMG, d3a1IMG, f4fIMG, sbdIMG, tbfIMG] = [new Image(), new Image(), new Image(), new Image(), new Image(), new Image()];
+
+carrierIMG.src = "icons/carrier.png";
+battleshipIMG.src = "icons/battleship.png";
 
 akagiIMG.src = "carriers/akagi.png";
 enterpriseIMG.src = "carriers/enterprise.png";
@@ -45,13 +60,13 @@ let shipTypes = [
     {autofire:true, range:2500, team:undefined, name:"Iowa",       nation:"United States",            type:"Battleship",       hp:92000, maxHP:92000, x:100,  y:100, beam:33,   length:262,   maxSpeed:1.1,  speed:0, speedSetting:0, image:iowaIMG,       rotation:0,  guns:[{number:1, x:50,y:0, calibre:406,reloadTime:1000,damage:8000, timeSinceReload:0},{number:2, x:50,y:7.5, calibre:406,reloadTime:1000,damage:8000, timeSinceReload:0},{number:3, x:50,y:15, calibre:406,reloadTime:1000,damage:8000, timeSinceReload:0},{number:4, x:40,y:0, calibre:406,reloadTime:1000,damage:8000, timeSinceReload:0}, {number:5, x:40,y:7.5, calibre:406,reloadTime:1000,damage:8000, timeSinceReload:0},{number:6, x:40,y:15, calibre:406,reloadTime:1000,  damage:8000, timeSinceReload:0},{number:7, x:10,y:0, calibre:406,reloadTime:1000,damage:8000, timeSinceReload:0},{number:8, x:10,y:7.5, calibre:406,reloadTime:1000,damage:8000, timeSinceReload:0},{number:9, x:10,y:15, calibre:406,reloadTime:1000,damage:8000, timeSinceReload:0}], projectiles:30},
     {autofire:true, range:2500, team:undefined, name:"Bismarck",   nation:"Germany",                  type:"Battleship",       hp:80000, maxHP:80000, x:100,  y:100, beam:36,   length:241.6, maxSpeed:1,    speed:0, speedSetting:0, image:bismarckIMG,   rotation:0,  guns:[{number:1, x:50,y:0, calibre:380,reloadTime:1000,damage:8000, timeSinceReload:0},{number:2, x:50,y:15, calibre:380, reloadTime:1000,damage:8000, timeSinceReload:0}, {number:3, x:40,y:0, calibre:380,reloadTime:1000,damage:8000, timeSinceReload:0}, {number:4, x:40,y:15, calibre:380,reloadTime:1000,damage:8000, timeSinceReload:0},{number:5, x:20,y:0,  calibre:380,reloadTime:1000,damage:8000, timeSinceReload:0},  {number:6, x:20,y:15, calibre:380,reloadTime:1000,damage:8000, timeSinceReload:0},{number:7, x:10,y:0, calibre:380,reloadTime:1000,damage:8000, timeSinceReload:0},{number:8, x:10,y:15, calibre:380,reloadTime:1000,damage:8000, timeSinceReload:0}], projectiles:30},
     {autofire:true, range:2500, team:undefined, name:"Hood",       nation:"Great Britain",            type:"Battleship",       hp:80000, maxHP:80000, x:100,  y:100, beam:31.8, length:262.3, maxSpeed:1.06, speed:0, speedSetting:0, image:hoodIMG,       rotation:0,  guns:[{number:1, x:50,y:0, calibre:381,reloadTime:1000,damage:8000, timeSinceReload:0},{number:2, x:50,y:15, calibre:381, reloadTime:1000,damage:8000, timeSinceReload:0}, {number:3, x:40,y:0, calibre:381,reloadTime:1000,damage:8000, timeSinceReload:0}, {number:4, x:40,y:15, calibre:381,reloadTime:1000,damage:8000, timeSinceReload:0},{number:5, x:20,y:0,  calibre:381,reloadTime:1000,damage:8000, timeSinceReload:0},  {number:6, x:20,y:15, calibre:381,reloadTime:1000,damage:8000, timeSinceReload:0},{number:7, x:10,y:0, calibre:381,reloadTime:1000,damage:8000, timeSinceReload:0},{number:8, x:10,y:15, calibre:381,reloadTime:1000,damage:8000, timeSinceReload:0}], projectiles:30},     
-    {autofire:true, deckIsFree: true, launchTimeDuration:200, launchTime:0, team:undefined, name:"Akagi",      nation:"Japan",         range:4000, type:"Aircraft Carrier", hp:52000, maxHP:52000, x:100,  y:100, beam:31.3, length:260.7, maxSpeed:1.06, speed:0, speedSetting:0, image:akagiIMG,      rotation:0, squadrons:[{status:"Hangar", name: "A6M2 'Zero-sen'", type:"Fighter", x:0, y:0, speed:4, rotation:0, hp:3000, range:4000, number:30, image:a6m2IMG, reloadTime:1000, timeSinceReload:0}, {status:"Hangar", name:"D3A1 'Val'",      type:"Dive Bomber", x:0, y:0, speed:4, rotation:0, hp:3000, range:4000, number:30, image:d3a1IMG,  reloadTime:1000, timeSinceReload:0}, {status:"Hangar", name:"B5N2 'Kate'",      type:"Torpedo Bomber", x:0, y:0, speed:4, rotation:0, hp:3000, range:4000, number:30, image:b5n2IMG,  reloadTime:1000, timeSinceReload:0}], projectiles:30},
-    {autofire:true, deckIsFree: true, launchTimeDuration:200, launchTime:0, team:undefined, name:"Kaga",       nation:"Japan",         range:4000, type:"Aircraft Carrier", hp:56000, maxHP:56000, x:1000, y:100, beam:30, length:225, maxSpeed:1.15, speed:0, speedSetting:0, image:kagaIMG,       rotation:0, squadrons:[{status:"Hangar", name: "A6M2 'Zero-sen'", type:"Fighter", x:0, y:0, speed:4, rotation:0,     hp:3000, range:4000, number:30, image:a6m2IMG, reloadTime:1000, timeSinceReload:0}, {status:"Hangar", name:"D3A1 'Val'",      type:"Dive Bomber", x:0, y:0, speed:4, rotation:0, hp:3000, range:4000, number:30, image:d3a1IMG,  reloadTime:1000, timeSinceReload:0}, {status:"Hangar", name:"B5N2 'Kate'",      type:"Torpedo Bomber", x:0, y:0, speed:4, rotation:0, hp:3000, range:4000, number:30, image:b5n2IMG,  reloadTime:1000, timeSinceReload:0}], projectiles:30},
-    {autofire:true, deckIsFree: true, launchTimeDuration:200, launchTime:0, team:undefined, name:"Hiryuu",     nation:"Japan",         range:4000, type:"Aircraft Carrier", hp:44000, maxHP:44000, x:1000, y:300, beam:30, length:225, maxSpeed:1.15, speed:0, speedSetting:0, image:hiryuIMG,      rotation:0, squadrons:[{status:"Hangar", name: "A6M2 'Zero-sen'", type:"Fighter", x:0, y:0, speed:4, rotation:0,     hp:3000, range:4000, number:30, image:a6m2IMG, reloadTime:1000, timeSinceReload:0}, {status:"Hangar", name:"D3A1 'Val'",      type:"Dive Bomber", x:0, y:0, speed:4, rotation:0, hp:3000, range:4000, number:30, image:d3a1IMG,  reloadTime:1000, timeSinceReload:0}, {status:"Hangar", name:"B5N2 'Kate'",      type:"Torpedo Bomber", x:0, y:0, speed:4, rotation:0, hp:3000, range:4000, number:30, image:b5n2IMG,  reloadTime:1000, timeSinceReload:0}], projectiles:30},
-    {autofire:true, deckIsFree: true, launchTimeDuration:200, launchTime:0, team:undefined, name:"Soryuu",     nation:"Japan",         range:4000, type:"Aircraft Carrier", hp:44000, maxHP:44000, x:1000, y:300, beam:30, length:225, maxSpeed:1.15, speed:0, speedSetting:0, image:soryuIMG,      rotation:0, squadrons:[{status:"Hangar", name: "A6M2 'Zero-sen'", type:"Fighter", x:0, y:0, speed:4, rotation:0,     hp:3000, range:4000, number:30, image:a6m2IMG, reloadTime:1000, timeSinceReload:0}, {status:"Hangar", name:"D3A1 'Val'",      type:"Dive Bomber", x:0, y:0, speed:4, rotation:0, hp:3000, range:4000, number:30, image:d3a1IMG,  reloadTime:1000, timeSinceReload:0}, {status:"Hangar", name:"B5N2 'Kate'",      type:"Torpedo Bomber", x:0, y:0, speed:4, rotation:0, hp:3000, range:4000, number:30, image:b5n2IMG,  reloadTime:1000, timeSinceReload:0}], projectiles:30},
-    {autofire:true, deckIsFree: true, launchTimeDuration:200, launchTime:0, team:undefined, name:"Enterprise", nation:"United States", range:4000, type:"Aircraft Carrier", hp:50000, maxHP:50000, x:1000, y:300, beam:30, length:225, maxSpeed:1.15, speed:0, speedSetting:0, image:enterpriseIMG, rotation:0, squadrons:[{status:"Hangar", name: "F4F-4 'Wildcat'", type:"Fighter", x:0, y:0, speed:4, rotation:0,     hp:3000, range:4000, number:30, image:f4fIMG, reloadTime:1000, timeSinceReload:0},  {status:"Hangar", name:"SBD 'Dauntless'", type:"Dive Bomber", x:0, y:0, speed:4, rotation:0, hp:3000, range:4000, number:30, image:sbdIMG,   reloadTime:1000, timeSinceReload:0}, {status:"Hangar", name:"TBF 'Devastator'", type:"Torpedo Bomber", x:0, y:0, speed:4, rotation:0, hp:3000, range:4000, number:30, image:tbfIMG,   reloadTime:1000, timeSinceReload:0}], projectiles:30},
-    {autofire:true, deckIsFree: true, launchTimeDuration:200, launchTime:0, team:undefined, name:"Hornet",     nation:"United States", range:4000, type:"Aircraft Carrier", hp:50000, maxHP:50000, x:1000, y:300, beam:30, length:225, maxSpeed:1.15, speed:0, speedSetting:0, image:hornetIMG,     rotation:0, squadrons:[{status:"Hangar", name: "F4F-4 'Wildcat'", type:"Fighter", x:0, y:0, speed:4, rotation:0,     hp:3000, range:4000, number:30, image:f4fIMG, reloadTime:1000, timeSinceReload:0},  {status:"Hangar", name:"SBD 'Dauntless'", type:"Dive Bomber", x:0, y:0, speed:4, rotation:0, hp:3000, range:4000, number:30, image:sbdIMG,   reloadTime:1000, timeSinceReload:0}, {status:"Hangar", name:"TBF 'Devastator'", type:"Torpedo Bomber", x:0, y:0, speed:4, rotation:0, hp:3000, range:4000, number:30, image:tbfIMG,   reloadTime:1000, timeSinceReload:0}], projectiles:30},
-    {autofire:true, deckIsFree: true, launchTimeDuration:200, launchTime:0, team:undefined, name:"Yorktown",   nation:"United States", range:4000, type:"Aircraft Carrier", hp:50000, maxHP:50000, x:1000, y:300, beam:30, length:225, maxSpeed:1.15, speed:0, speedSetting:0, image:yorktownIMG,   rotation:0, squadrons:[{status:"Hangar", name: "F4F-4 'Wildcat'", type:"Fighter", x:0, y:0, speed:4, rotation:0,     hp:3000, range:4000, number:30, image:f4fIMG, reloadTime:1000, timeSinceReload:0},  {status:"Hangar", name:"SBD 'Dauntless'", type:"Dive Bomber", x:0, y:0, speed:4, rotation:0, hp:3000, range:4000, number:30, image:sbdIMG,   reloadTime:1000, timeSinceReload:0}, {status:"Hangar", name:"TBF 'Devastator'", type:"Torpedo Bomber", x:0, y:0, speed:4, rotation:0, hp:3000, range:4000, number:30, image:tbfIMG,   reloadTime:1000, timeSinceReload:0}], projectiles:30}
+    {autofire:true, deckIsFree: true, launchTimeDuration:200, launchTime:0, team:undefined, name:"Akagi",      nation:"Japan",         range:4000, type:"Aircraft Carrier", hp:52000, maxHP:52000, x:100,  y:100, beam:31.3, length:260.7, maxSpeed:1.06, speed:0, speedSetting:0, image:akagiIMG,      rotation:0, squadrons:[{status:"Hangar", name: "A6M2 'Zero-sen'", type:"Fighter", x:0, y:0, speed:4, rotation:0, hp:3000, range:4000, number:15, maxNumber:15, image:a6m2IMG, reloadTime:1000, timeSinceReload:0}, {status:"Hangar", name:"D3A1 'Val'",      type:"Dive Bomber", x:0, y:0, speed:4, rotation:0, hp:3000, range:4000, number:15, maxNumber:15, image:d3a1IMG,  reloadTime:1000, timeSinceReload:0}, {status:"Hangar", name:"B5N2 'Kate'",      type:"Torpedo Bomber", x:0, y:0, speed:4, rotation:0, hp:3000, range:4000, number:15, maxNumber:15, image:b5n2IMG,  reloadTime:1000, timeSinceReload:0}, {status:"Hangar", name:"B5N2 'Kate'",      type:"Torpedo Bomber", x:0, y:0, speed:4, rotation:0, hp:3000, range:4000, number:15, maxNumber:15, image:b5n2IMG,  reloadTime:1000, timeSinceReload:0}], projectiles:30},
+    {autofire:true, deckIsFree: true, launchTimeDuration:200, launchTime:0, team:undefined, name:"Kaga",       nation:"Japan",         range:4000, type:"Aircraft Carrier", hp:56000, maxHP:56000, x:1000, y:100, beam:30, length:225, maxSpeed:1.15, speed:0, speedSetting:0, image:kagaIMG,       rotation:0, squadrons:[{status:"Hangar", name: "A6M2 'Zero-sen'", type:"Fighter", x:0, y:0, speed:4, rotation:0,     hp:3000, range:4000, number:15, maxNumber:15, image:a6m2IMG, reloadTime:1000, timeSinceReload:0}, {status:"Hangar", name:"D3A1 'Val'",      type:"Dive Bomber", x:0, y:0, speed:4, rotation:0, hp:3000, range:4000, number:15, maxNumber:15, image:d3a1IMG,  reloadTime:1000, timeSinceReload:0}, {status:"Hangar", name:"B5N2 'Kate'",      type:"Torpedo Bomber", x:0, y:0, speed:4, rotation:0, hp:3000, range:4000, number:15, maxNumber:15, image:b5n2IMG,  reloadTime:1000, timeSinceReload:0}, {status:"Hangar", name:"B5N2 'Kate'",      type:"Torpedo Bomber", x:0, y:0, speed:4, rotation:0, hp:3000, range:4000, number:15, maxNumber:15, image:b5n2IMG,  reloadTime:1000, timeSinceReload:0}], projectiles:30},
+    {autofire:true, deckIsFree: true, launchTimeDuration:200, launchTime:0, team:undefined, name:"Hiryuu",     nation:"Japan",         range:4000, type:"Aircraft Carrier", hp:44000, maxHP:44000, x:1000, y:300, beam:30, length:225, maxSpeed:1.15, speed:0, speedSetting:0, image:hiryuIMG,      rotation:0, squadrons:[{status:"Hangar", name: "A6M2 'Zero-sen'", type:"Fighter", x:0, y:0, speed:4, rotation:0,     hp:3000, range:4000, number:15, maxNumber:15, image:a6m2IMG, reloadTime:1000, timeSinceReload:0}, {status:"Hangar", name:"D3A1 'Val'",      type:"Dive Bomber", x:0, y:0, speed:4, rotation:0, hp:3000, range:4000, number:15, maxNumber:15, image:d3a1IMG,  reloadTime:1000, timeSinceReload:0}, {status:"Hangar", name:"B5N2 'Kate'",      type:"Torpedo Bomber", x:0, y:0, speed:4, rotation:0, hp:3000, range:4000, number:15, maxNumber:15, image:b5n2IMG,  reloadTime:1000, timeSinceReload:0}, {status:"Hangar", name:"B5N2 'Kate'",      type:"Torpedo Bomber", x:0, y:0, speed:4, rotation:0, hp:3000, range:4000, number:15, maxNumber:15, image:b5n2IMG,  reloadTime:1000, timeSinceReload:0}], projectiles:30},
+    {autofire:true, deckIsFree: true, launchTimeDuration:200, launchTime:0, team:undefined, name:"Soryuu",     nation:"Japan",         range:4000, type:"Aircraft Carrier", hp:44000, maxHP:44000, x:1000, y:300, beam:30, length:225, maxSpeed:1.15, speed:0, speedSetting:0, image:soryuIMG,      rotation:0, squadrons:[{status:"Hangar", name: "A6M2 'Zero-sen'", type:"Fighter", x:0, y:0, speed:4, rotation:0,     hp:3000, range:4000, number:15, maxNumber:15, image:a6m2IMG, reloadTime:1000, timeSinceReload:0}, {status:"Hangar", name:"D3A1 'Val'",      type:"Dive Bomber", x:0, y:0, speed:4, rotation:0, hp:3000, range:4000, number:15, maxNumber:15, image:d3a1IMG,  reloadTime:1000, timeSinceReload:0}, {status:"Hangar", name:"B5N2 'Kate'",      type:"Torpedo Bomber", x:0, y:0, speed:4, rotation:0, hp:3000, range:4000, number:15, maxNumber:15, image:b5n2IMG,  reloadTime:1000, timeSinceReload:0}, {status:"Hangar", name:"B5N2 'Kate'",      type:"Torpedo Bomber", x:0, y:0, speed:4, rotation:0, hp:3000, range:4000, number:15, maxNumber:15, image:b5n2IMG,  reloadTime:1000, timeSinceReload:0}], projectiles:30},
+    {autofire:true, deckIsFree: true, launchTimeDuration:200, launchTime:0, team:undefined, name:"Enterprise", nation:"United States", range:4000, type:"Aircraft Carrier", hp:50000, maxHP:50000, x:1000, y:300, beam:30, length:225, maxSpeed:1.15, speed:0, speedSetting:0, image:enterpriseIMG, rotation:0, squadrons:[{status:"Hangar", name: "F4F-4 'Wildcat'", type:"Fighter", x:0, y:0, speed:4, rotation:0,     hp:3000, range:4000, number:15, maxNumber:15, image:f4fIMG, reloadTime:1000, timeSinceReload:0},  {status:"Hangar", name:"SBD 'Dauntless'", type:"Dive Bomber", x:0, y:0, speed:4, rotation:0, hp:3000, range:4000, number:15, maxNumber:15, image:sbdIMG,   reloadTime:1000, timeSinceReload:0}, {status:"Hangar", name:"SBD 'Dauntless'", type:"Dive Bomber", x:0, y:0, speed:4, rotation:0, hp:3000, range:4000, number:15, maxNumber:15, image:sbdIMG,   reloadTime:1000, timeSinceReload:0}, {status:"Hangar", name:"TBF 'Devastator'", type:"Torpedo Bomber", x:0, y:0, speed:4, rotation:0, hp:3000, range:4000, number:15, maxNumber:15, image:tbfIMG,   reloadTime:1000, timeSinceReload:0}], projectiles:30},
+    {autofire:true, deckIsFree: true, launchTimeDuration:200, launchTime:0, team:undefined, name:"Hornet",     nation:"United States", range:4000, type:"Aircraft Carrier", hp:50000, maxHP:50000, x:1000, y:300, beam:30, length:225, maxSpeed:1.15, speed:0, speedSetting:0, image:hornetIMG,     rotation:0, squadrons:[{status:"Hangar", name: "F4F-4 'Wildcat'", type:"Fighter", x:0, y:0, speed:4, rotation:0,     hp:3000, range:4000, number:15, maxNumber:15, image:f4fIMG, reloadTime:1000, timeSinceReload:0},  {status:"Hangar", name:"SBD 'Dauntless'", type:"Dive Bomber", x:0, y:0, speed:4, rotation:0, hp:3000, range:4000, number:15, maxNumber:15, image:sbdIMG,   reloadTime:1000, timeSinceReload:0}, {status:"Hangar", name:"SBD 'Dauntless'", type:"Dive Bomber", x:0, y:0, speed:4, rotation:0, hp:3000, range:4000, number:15, maxNumber:15, image:sbdIMG,   reloadTime:1000, timeSinceReload:0}, {status:"Hangar", name:"TBF 'Devastator'", type:"Torpedo Bomber", x:0, y:0, speed:4, rotation:0, hp:3000, range:4000, number:15, maxNumber:15, image:tbfIMG,   reloadTime:1000, timeSinceReload:0}], projectiles:30},
+    {autofire:true, deckIsFree: true, launchTimeDuration:200, launchTime:0, team:undefined, name:"Yorktown",   nation:"United States", range:4000, type:"Aircraft Carrier", hp:50000, maxHP:50000, x:1000, y:300, beam:30, length:225, maxSpeed:1.15, speed:0, speedSetting:0, image:yorktownIMG,   rotation:0, squadrons:[{status:"Hangar", name: "F4F-4 'Wildcat'", type:"Fighter", x:0, y:0, speed:4, rotation:0,     hp:3000, range:4000, number:15, maxNumber:15, image:f4fIMG, reloadTime:1000, timeSinceReload:0},  {status:"Hangar", name:"SBD 'Dauntless'", type:"Dive Bomber", x:0, y:0, speed:4, rotation:0, hp:3000, range:4000, number:15, maxNumber:15, image:sbdIMG,   reloadTime:1000, timeSinceReload:0}, {status:"Hangar", name:"SBD 'Dauntless'", type:"Dive Bomber", x:0, y:0, speed:4, rotation:0, hp:3000, range:4000, number:15, maxNumber:15, image:sbdIMG,   reloadTime:1000, timeSinceReload:0}, {status:"Hangar", name:"TBF 'Devastator'", type:"Torpedo Bomber", x:0, y:0, speed:4, rotation:0, hp:3000, range:4000, number:15, maxNumber:15, image:tbfIMG,   reloadTime:1000, timeSinceReload:0}], projectiles:30}
 ];
 
 let scenarios = [
@@ -124,24 +139,48 @@ function addShip(shipName, scenarioTeam){
             teamElement = document.querySelector("#teamB");
         }
     }
+    let sTeam = (scenarioTeam ? scenarioTeam : selectedTeam);
     let li = document.createElement('li');
     li.innerHTML = shipName;
+    li.setAttribute(`onclick`,`removeShipFromLists("${shipName}", ${sTeam})`);
     teamElement.appendChild(li);
     let ship = shipTypes.find(x => x.name === shipName);
     let a;
     if(ship.type === "Aircraft Carrier"){
-        a = {autofire:ship.autofire, deckIsFree:ship.deckIsFree, launchTime:ship.launchTime, launchTimeDuration:ship.launchTimeDuration, range:ship.range, team:(scenarioTeam ? scenarioTeam : selectedTeam), name:ship.name, nation:ship.nation, type:ship.type, hp:ship.hp, maxHP: ship.maxHP, x:0, y:0, beam:ship.beam, length:ship.length, maxSpeed: ship.maxSpeed, speedSetting:0, speed:0, image:ship.image, rotation:0, squadrons:loopThroughPlanes(ship.squadrons), projectiles:projectiles(ship.projectiles)}
+        a = {auto:true, autofire:ship.autofire, deckIsFree:ship.deckIsFree, launchTime:ship.launchTime, launchTimeDuration:ship.launchTimeDuration, range:ship.range, team:sTeam, name:ship.name, nation:ship.nation, type:ship.type, hp:ship.hp, maxHP: ship.maxHP, x:0, y:0, beam:ship.beam, length:ship.length, maxSpeed: ship.maxSpeed, speedSetting:0, speed:0, image:ship.image, rotation:0, squadrons:loopThroughPlanes(ship.squadrons), projectiles:projectiles(ship.projectiles)}
     }
-    else a = {autofire:ship.autofire, range:ship.range, team:(scenarioTeam ? scenarioTeam : selectedTeam), name:ship.name, nation:ship.nation, type:ship.type, hp:ship.hp, maxHP: ship.maxHP, x:0, y:0, beam:ship.beam, length:ship.length, maxSpeed: ship.maxSpeed, speedSetting:0, speed:0, image:ship.image, rotation:0, guns:loopThrough(ship.guns), projectiles:projectiles(ship.projectiles)}
+    else a = {auto:true, autofire:ship.autofire, range:ship.range, team:sTeam, name:ship.name, nation:ship.nation, type:ship.type, hp:ship.hp, maxHP: ship.maxHP, x:0, y:0, beam:ship.beam, length:ship.length, maxSpeed: ship.maxSpeed, speedSetting:0, speed:0, image:ship.image, rotation:0, guns:loopThrough(ship.guns), projectiles:projectiles(ship.projectiles)}
     ships.push(a);
     console.log(a);
+}
+
+function removeShipFromLists(shipName, team){
+    for(let z = 0; z < ships.length; z++){
+        if(ships[z].name === shipName && ships[z].team === team){
+            let _temp = [];
+            for(let p = 0; p < z; p++){
+                _temp.push(ships[p]);
+            }
+            for(let p = z+1; p < ships.length; p++){
+                _temp.push(ships[p]);
+            }
+            ships = _temp;
+        }
+    }
+    if(team === 0) teamElement = document.querySelector("#teamA");
+    else teamElement = document.querySelector("#teamB");
+    for(let a of teamElement.children){
+        if(a.innerHTML === shipName){
+            a.remove();
+        }
+    }
 }
 
 function loopThroughPlanes(squadrons){
     let finishedPlanes = [];
     let i = 0;
     while(i < squadrons.length){
-        let squadron = {status:squadrons[i].status, name:squadrons[i].name, type:squadrons[i].type, x:0, y:0, speed:squadrons[i].speed, rotation:0, munitions:squadrons[i].number, hp:squadrons[i].hp, range:squadrons[i].range, number:squadrons[i].number, image: squadrons[i].image, reloadTime:squadrons[i].reloadTime, timeSinceReload:squadrons[i].timeSinceReload, waypoint:{x:0,y:0}}
+        let squadron = {status:squadrons[i].status, name:squadrons[i].name, type:squadrons[i].type, x:0, y:0, speed:squadrons[i].speed, rotation:0, munitions:squadrons[i].number, hp:squadrons[i].hp, range:squadrons[i].range, number:squadrons[i].number, maxNumber:squadrons[i].maxNumber, image: squadrons[i].image, reloadTime:squadrons[i].reloadTime, timeSinceReload:squadrons[i].timeSinceReload, waypoint:{x:0,y:0}}
         finishedPlanes.push(squadron);
         i++;
     }
@@ -163,6 +202,11 @@ function switchTeam(){
     selectedTeam = selectedTeam === 0 ? 1 : 0;
     document.getElementById('switchTeam').innerHTML = team[selectedTeam];
 }
+
+function switchTeamPlayingAs(){
+    playingAsTeam = playingAsTeam === 0 ? 1 : 0;
+    document.getElementById('switchTeamPlayingAs').innerHTML = `Playing as ${team[playingAsTeam]}`;
+}   
 
 function teamNameChange(i){
     if(i === 0){
@@ -187,14 +231,14 @@ function scenario(name){
     for(let i of scen.ships) addShip(i.name, i.team);
 }
 
-async function getMousePos(e) {
+function getMousePos(e) {
     var rect = canvas.getBoundingClientRect();
     let m =  {
       x: e.clientX - rect.left,
       y: e.clientY - rect.top
     };
-
-    if(isFiringManually){
+    ctx.font = "14px sans-serif";
+    if(isFiringManually && ships[selected].type !== "Aircraft Carrier" && ships[selected].team === playingAsTeam){
         let i = ships[selected];
         for(let a of i.guns){
             if(a.timeSinceReload >= a.reloadTime){
@@ -216,18 +260,47 @@ async function getMousePos(e) {
         isFiringManually = false;
         document.querySelector('canvas').style.cursor = 'default';
     }
-    else if(ships[selected].type !== "Aircraft Carrier" && m.x > 10 && m.x < 110 && m.y > canvas.height - (12*((ships[selected].guns.length+3))) && m.y < canvas.height - (12*((ships[selected].guns.length+3)))+20){
+    else if(ships[selected].team === playingAsTeam && ships[selected].type !== "Aircraft Carrier" && m.x > 10 && m.x < 110 && m.y > canvas.height - (12*((ships[selected].guns.length+3))) && m.y < canvas.height - (12*((ships[selected].guns.length+3)))+20){
         ships[selected].autofire = ships[selected].autofire ? false : true;
     }
-    else if(ships[selected].type === "Aircraft Carrier" && m.x > 10 && m.x < 110 && m.y > canvas.height - (12*((ships[selected].squadrons.length+3))) && m.y < canvas.height - (12*((ships[selected].squadrons.length+3)))+20){
-        ships[selected].autofire = ships[selected].autofire ? false : true;
+    else if(ships[selected].team === playingAsTeam && ships[selected].type !== "Aircraft Carrier" && m.x > 10 && m.x < 10+ctx.measureText("Auto-steer : Yes").width+2 && m.y > canvas.height - (12*((ships[selected].guns.length+8)))-2 && m.y < canvas.height - (12*((ships[selected].guns.length+8)))+18){
+        ships[selected].auto = ships[selected].auto ? false : true;
     }
-    // ctx.fillRect(130, canvas.height - 75, ctx.measureText("FIRE").width * 2, 30);
-    else if(m.x > 130 && m.x < 130+ctx.measureText("FIRE").width * 2 && m.y > canvas.height - 75 && m.y < canvas.height-45 && !ships[selected].autofire){
+    else if(ships[selected].team === playingAsTeam && ships[selected].type === "Aircraft Carrier" && m.x > 10 && m.x < 10+ctx.measureText("Auto-steer : Yes").width+2 && m.y > canvas.height - (12*((ships[selected].squadrons.length+8)))-2 && m.y < canvas.height - (12*((ships[selected].squadrons.length+8)))+18){
+        ships[selected].auto = ships[selected].auto ? false : true;
+    }
+    // else if(ships[selected].type === "Aircraft Carrier" && m.x > 10 && m.x < 110 && m.y > canvas.height - (12*((ships[selected].squadrons.length+3))) && m.y < canvas.height - (12*((ships[selected].squadrons.length+3)))+20){
+    //     ships[selected].autofire = ships[selected].autofire ? false : true;
+    // }
+    else if(ships[selected].team === playingAsTeam && ships[selected].type !== "Aircraft Carrier" && m.x > 130 && m.x < 130+ctx.measureText("FIRE").width * 2 && m.y > canvas.height - 75 && m.y < canvas.height-45 && !ships[selected].autofire){
         document.querySelector('canvas').style.cursor = 'url(\'firing_cursor.png\'), auto';
         isFiringManually = true;
     }
     else{
+        for(let a of ships){
+            if(a.hp > 0){
+                let i;
+                if(a.team === 0){
+                    i = numShipsA.indexOf(a);
+                    console.log((canvas.width / 2) - 30*(i+1) + " < "+m.x+" < " + (canvas.width / 2) - 30*(i+1)+20)
+                    console.log("5 < "+m.y+" < 10")
+                    if(m.x > (canvas.width / 2) - 30*(i+1) && m.x < (canvas.width / 2) - 30*(i+1)+20 && m.y > 0 && m.y < 20){
+                        selected = ships.indexOf(a);
+                        cameraLock = true;
+                        break;
+                    }
+                }
+                else{
+                    i = numShipsB.indexOf(a);
+                    if(m.x > (canvas.width / 2) + 30*(i+1) && m.x < (canvas.width / 2) +30*(i+1)+20 && m.y > 0 && m.y < 20){
+                        selected = ships.indexOf(a);
+                        cameraLock = true;
+                        break;
+                    }
+                }
+            }
+        }
+
         for(let q of ships){
             console.log(m.x, m.y);
             // if(m.x <= i.x+i.length-offsetX && m.x >= i.x-offsetX && m.y >= i.y-offsetY && m.y <= i.y+i.beam-offsetY){
@@ -240,6 +313,7 @@ async function getMousePos(e) {
             let qY2 = q.y - (q.beam + (q.length-q.beam)*Math.sin(q.rotation*(Math.PI/180))*scale) > q.y + q.beam + (q.length-q.beam)*Math.sin(q.rotation*(Math.PI/180))*scale ? q.y - (q.beam + (q.length-q.beam)*Math.sin(q.rotation*(Math.PI/180))*scale) : q.y + q.beam + (q.length-q.beam)*Math.sin(q.rotation*(Math.PI/180))*scale;
             if(m.x > qX1-offsetX && m.x < qX2-offsetX && m.y > qY1-offsetY && m.y < qY2-offsetY){
                 selected = ships.indexOf(q);
+                selectedPlane = undefined;
                 console.log("Selected ship",selected, "name : ", q.name);
                 // stats.push({text:`${i.name} hits ${q.name}, dealing some damage`,time:Date.now()});
             }
@@ -248,20 +322,7 @@ async function getMousePos(e) {
   }
 
 function init(){
-    console.log("initialising")
-    document.querySelector('video').pause();
-    document.querySelector("main").style.display = "none";
-    canvas = document.querySelector("canvas");
-    canvas.style.display = "block";
-    ctx = canvas.getContext("2d");
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
-    cWidth = 4000;
-    cHeight = 2000;
-    // canvas.style.overflow = "hidden";
-    let numShipsA = [];
-    let numShipsB = [];
-
+    console.log("Initialising...");
     for(let i of ships){
         if(i.team === 0){
             numShipsA.push(i);
@@ -270,29 +331,57 @@ function init(){
             numShipsB.push(i);
         }
     }
+    if(numShipsA.length < 1 || numShipsB.length < 1){
+        document.getElementById('warning').style.display = "inline-block";
+        console.log("initialisation failed.")
+    }
+    else{
+        startTime = Date.now();
+        document.getElementById('warning').style.display = "none";
+        document.querySelector('video').pause();
+        document.querySelector("main").style.display = "none";
+        canvas = document.querySelector("canvas");
+        canvas.style.display = "block";
+        ctx = canvas.getContext("2d");
+        // canvas.width = window.innerWidth;
+        // canvas.height = window.innerHeight;
+        cWidth = 4000;
+        cHeight = 2000;
+        // canvas.style.overflow = "hidden";
 
-    for(let i = 0; i < numShipsA.length; i++){
-        numShipsA[i].x = 125;
-        numShipsA[i].y = ((cHeight) / (numShipsA.length+1)) *(i+1);
-    }   
+        for(let i = 0; i < numShipsA.length; i++){
+            numShipsA[i].x = 125;
+            numShipsA[i].y = ((cHeight) / (numShipsA.length+1)) *(i+1);
+        }   
 
-    for(let i = 0; i < numShipsB.length; i++){
-        numShipsB[i].x = cWidth - 125;
-        numShipsB[i].y = ((cHeight) / (numShipsB.length+1)) *(i+1);
-        numShipsB[i].rotation = 180;
-    }   
+        for(let i = 0; i < numShipsB.length; i++){
+            numShipsB[i].x = cWidth - 125;
+            numShipsB[i].y = ((cHeight) / (numShipsB.length+1)) *(i+1);
+            numShipsB[i].rotation = 180;
+        }   
+ 
+        selected = 0;
+        for(let i = 0; i < ships.length; i++){
+            if(ships[i].team === playingAsTeam){
+                selected = i;
+                // offset such that first ship of selected team is in the middle of window
+                // offsetX = ships[selected].x - (canvas.width/2);
+                // offsetY = ships[selected].y - (canvas.height/ 2);
+                // console.log("offsetY", offsetY);
+                break;
+            }
+        }
 
-    // offsetY such that numShipsA[0].y is in the middle of window.innerHeight
-    offsetY = numShipsA[0].y - (canvas.height/ 2);
-    console.log("offsetY", offsetY)
-    document.addEventListener("keydown",(e)=>move(e), false);
-    document.addEventListener("click", (e)=>getMousePos(e), false);
-    document.addEventListener("dblclick",()=> cameraLock ? cameraLock = false : cameraLock = true);
+        document.addEventListener("keydown",(e)=>handleKeyPress(e), false);
+        document.addEventListener("click", (e)=>getMousePos(e), false);
+        document.addEventListener("dblclick",()=> cameraLock ? cameraLock = false : cameraLock = true);
 
-    selected = 0;
 
-    document.addEventListener('mousemove', (e)=>scroll(e));
-    window.setInterval(render, 33);
+        document.addEventListener('mousemove', (e)=>scroll(e), false);
+        intervalID = window.setInterval(render, 33);
+
+        console.log("Game started.");
+    }
 }
 
 function scroll(e){
@@ -313,9 +402,15 @@ function scroll(e){
 
 
 function render(){
+
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
     ctx.clearRect(0,0,canvas.width,canvas.height);
     ctx.fillStyle = "#5095F8";
     ctx.fillRect(0,0,canvas.width,canvas.height);
+
+
+    if(gridEnabled){
 
     ctx.fillStyle = "red";
     ctx.fillRect(0-offsetX, 0-offsetY, cWidth, 1);
@@ -323,34 +418,33 @@ function render(){
     ctx.fillRect(cWidth-offsetX, 0-offsetY, 1, cHeight);
     ctx.fillRect(0-offsetX, cHeight-offsetY, cWidth, 1);
 
-    for(let i = 0; i < cWidth / 100; i++){
-        ctx.fillStyle = "rgba(255,255,255,0.25)";
-        if((i+1) % 4 == 0) ctx.fillStyle = "rgba(0,0,0,0.25)"; 
-        ctx.fillRect((100*(i+1))-offsetX, 0-offsetY, 1, cHeight);
-    }
-    for(let i = 0; i < cHeight / 100; i++){
-        ctx.fillStyle = "rgba(255,255,255,0.25)";
-        if((i+1) % 4 == 0) ctx.fillStyle = "rgba(0,0,0,0.25)"; 
-        ctx.fillRect(0-offsetX, (100*(i+1))-offsetY, cWidth, 1);
+        for(let i = 0; i < cWidth / 100; i++){
+            ctx.fillStyle = "rgba(255,255,255,0.25)";
+            if((i+1) % 4 == 0) ctx.fillStyle = "rgba(0,0,0,0.25)"; 
+            ctx.fillRect((100*(i+1))-offsetX, 0-offsetY, 1, cHeight);
+        }
+        for(let i = 0; i < cHeight / 100; i++){
+            ctx.fillStyle = "rgba(255,255,255,0.25)";
+            if((i+1) % 4 == 0) ctx.fillStyle = "rgba(0,0,0,0.25)"; 
+            ctx.fillRect(0-offsetX, (100*(i+1))-offsetY, cWidth, 1);
+        }
     }
 
+    if(hudEnabled){
     ctx.textAlign = "left";
-
-
     if(stats.length >= 1){
         let a = 0;
         let i = stats.length-1;
         while(i >= 0){
             a++;
-            if(Date.now() - stats[i].time > 5000) break;
+            if((Date.now()-startTime) - stats[i].time > 5000) break;
             ctx.fillStyle = "black"; 
             ctx.font = "16px Arial";
             ctx.fillText(stats[i].text,5,a*20);
-            if(a > 4) break;
+            if(a > 7) break;
             i-=1;
         }
     }
-
     ctx.textAlign = "right";
     ctx.fillStyle = "black"; 
     ctx.font = "bold 18px Arial";
@@ -358,25 +452,45 @@ function render(){
     ctx.font = "16px Arial";
     ctx.fillText(`${ships[selected].name}`, canvas.width-10, 40);
     ctx.fillText(`${ships[selected].type}`, canvas.width-10, 60);
-    ctx.fillText(`${ships[selected].hp} / ${ships[selected].maxHP}`, canvas.width-10, 80);
+    ctx.fillText(`${ships[selected].hp < 0 ? 0 : ships[selected].hp} / ${ships[selected].maxHP}`, canvas.width-10, 80);
     ctx.fillText(`${Math.round(ships[selected].speed * 300) / 10} knots`, canvas.width-10, 100);
-
-
-    if(cameraLock){
-        offsetX = ships[selected].x - ((canvas.width / 2));
-        // +Math.sin(ships[selected].rotation*(Math.PI/180))*ships[selected].length/2);
-        offsetY = ships[selected].y - ((canvas.height / 2));
-        // +Math.cos(ships[selected].rotation*(Math.PI/180))*ships[selected].beam/2);
+    if(ships[selected].type === "Aircraft Carrier" && selectedPlane !== undefined){
+        ctx.fillText(`${ships[selected].squadrons[selectedPlane].name} ${ships[selected].squadrons[selectedPlane].type}`, canvas.width-10, 130);
+        ctx.fillText(`${ships[selected].squadrons[selectedPlane].status} at ${Math.round(ships[selected].squadrons[selectedPlane].speed * 300) / 10} knots`, canvas.width-10, 150);
+        ctx.fillText(`${ships[selected].squadrons[selectedPlane].number} / ${ships[selected].squadrons[selectedPlane].maxNumber} aircraft`, canvas.width-10, 170);
+        ctx.fillText(`${ships[selected].squadrons[selectedPlane].munitions} bombs left`, canvas.width-10, 190);
+    }
     }
 
-    for(let i of ships){
+    if(cameraLock){
+        if(!selectedPlane){
+            offsetX = ships[selected].x - ((canvas.width / 2));
+            // +Math.sin(ships[selected].rotation*(Math.PI/180))*ships[selected].length/2);
+            offsetY = ships[selected].y - ((canvas.height / 2));
+            // +Math.cos(ships[selected].rotation*(Math.PI/180))*ships[selected].beam/2);
+        }
+        else{
+            offsetX = ships[selected].squadrons[selectedPlane].x - ((canvas.width / 2));
+            offsetY = ships[selected].squadrons[selectedPlane].y - ((canvas.height / 2));
+        }
+    }
 
-        // positioning of hp and text
-        let tY = i.y-20*(Math.abs(Math.cos(i.rotation*(Math.PI/180))));
-        let tX = i.x-(i.length/2)*scale;
+    let shipsAlive = [false,false]; // Checking win status
+    let particlesInAir = [false,false]; // Checking win status
+    for(let i of ships){
 
         if(i.speed-0.0001 > ((i.maxSpeed*i.speedSetting) / 4)) i.speed-=0.005;
         else if(i.speed+0.0001 < ((i.maxSpeed*i.speedSetting) / 4)) i.speed+=0.005;
+
+        if(i.auto){
+            if(i.type !== "Aircraft Carrier" && i.speedSetting !== 4) i.speedSetting = 4;
+        }
+
+        // positioning of hp and text
+        if(hudEnabled){
+        let tY = i.y-20*(Math.abs(Math.cos(i.rotation*(Math.PI/180))));
+        let tX = i.x-(i.length/2)*scale;
+
 
         if(i.hp > 0){
             ctx.fillStyle = "white";
@@ -394,6 +508,7 @@ function render(){
         ctx.font = "16px Arial";
         ctx.textAlign = "left";
         ctx.fillText(i.name,tX-offsetX,tY-(4+offsetY));
+        }
 
         ctx.save();
 
@@ -414,7 +529,7 @@ function render(){
         ctx.restore();
 
         if(i.hp > 0){
-
+            shipsAlive[i.team] = true;
             let eX;
             let eDistance = i.range;
             let eY;
@@ -432,7 +547,7 @@ function render(){
                             eBeam = q.beam;
                             eLength = q.length;
                             targetAcquired = true;
-                            console.log("TARGET ACQUIRED")
+                            // console.log("TARGET ACQUIRED")
                         }
                     }
                 }
@@ -452,49 +567,45 @@ function render(){
                             if(finalX > eX) eRotation = eRotation + Math.PI; // Possible correction to angle
                             eDistance = Math.sqrt((eX-(finalX))**2+(eY-(finalY))**2); // Initial distance from shell to enemy
 
-                            timeToCurrentDistance = eDistance / 8; // Time t
-                            afterTimeX = eX + (enemySpeed*Math.cos(enemyRotation*Math.PI/180) * timeToCurrentDistance); // Enemy x co-ord after t time has passed
-                            afterTimeY = eY + (enemySpeed*Math.sin(enemyRotation*Math.PI/180) * timeToCurrentDistance); // Enemy y co-ord after t time has passed
+                            // If enemy ship is on map border
+                            if(Math.abs(eX - 0) < 5 || Math.abs(eX - cWidth) < 5 || Math.abs(eY - cHeight) < 5 || Math.abs(eY - 0) < 5){
+                                fire(i.x+posX, i.y+posY, eRotation, epicDistance, i.projectiles, a.calibre, a.damage);
+                            }
 
-                            let enemyDistanceFromInitial = Math.sqrt((eX-afterTimeX)**2 + (eY-afterTimeY)**2); // Enemy distance from where it was initially
+                            // Fire ahead of the enemy ship taking into account their speed, distance and direction
+                            else{
+                                timeToCurrentDistance = eDistance / 8; // Time t
+                                afterTimeX = eX + (enemySpeed*Math.cos(enemyRotation*Math.PI/180) * timeToCurrentDistance); // Enemy x co-ord after t time has passed
+                                afterTimeY = eY + (enemySpeed*Math.sin(enemyRotation*Math.PI/180) * timeToCurrentDistance); // Enemy y co-ord after t time has passed
 
-                            let epicAngle = Math.atan((afterTimeY-(eY))/(afterTimeX-(eX))); // Angle between initial and final enemy ship positions
-                            if(afterTimeX > eX) epicAngle = epicAngle + Math.PI; // Possible correction
+                                let enemyDistanceFromInitial = Math.sqrt((eX-afterTimeX)**2 + (eY-afterTimeY)**2); // Enemy distance from where it was initially
+
+                                let epicAngle = Math.atan((afterTimeY-(eY))/(afterTimeX-(eX))); // Angle between initial and final enemy ship positions
+                                if(afterTimeX > eX) epicAngle = epicAngle + Math.PI; // Possible correction
 
 
-                            afterRotation = Math.atan(((afterTimeY)-(finalY))/((afterTimeX)-(finalX))); // Angle between final enemy pos and shell
-                            if(finalX > afterTimeX) afterRotation = afterRotation + Math.PI;
+                                afterRotation = Math.atan(((afterTimeY)-(finalY))/((afterTimeX)-(finalX))); // Angle between final enemy pos and shell
+                                if(finalX > afterTimeX) afterRotation = afterRotation + Math.PI;
 
-                            let epicDistance = Math.sqrt(enemyDistanceFromInitial**2 + eDistance**2 - 2*eDistance*enemyDistanceFromInitial*Math.cos(epicAngle-eRotation))
-                            // Application of the formula a^2 = b^2 + c^2 - 2bcCos(A)
+                                let epicDistance = Math.sqrt(enemyDistanceFromInitial**2 + eDistance**2 - 2*eDistance*enemyDistanceFromInitial*Math.cos(epicAngle-eRotation))
+                                // Application of the formula a^2 = b^2 + c^2 - 2bcCos(A)
 
 
-                            // afterDistance = Math.sqrt((afterTimeX-(i.x+posX))**2 + (afterTimeY-(i.y+posY))**2);
+                                // afterDistance = Math.sqrt((afterTimeX-(i.x+posX))**2 + (afterTimeY-(i.y+posY))**2);
 
-                            console.log(i.name, i.team, "with coords",finalX,finalY, "firing at enemy ", eX, eY, "angle: ", eRotation, "distance:", eDistance, "enemy speed:", enemySpeed, "enemy rotation:", enemyRotation);
-                            fire(i.x+posX, i.y+posY, afterRotation, epicDistance, i.projectiles, a.calibre, a.damage);
+                                console.log(i.name, i.team, "with coords",finalX,finalY, "firing at enemy ", eX, eY, "angle: ", eRotation, "distance:", eDistance, "enemy speed:", enemySpeed, "enemy rotation:", enemyRotation);
+                                fire(i.x+posX, i.y+posY, afterRotation, epicDistance, i.projectiles, a.calibre, a.damage);
+                            }
+
                             a.timeSinceReload = 0;
                         }
                     a.timeSinceReload++;
-                    // ctx.fillStyle = "white";
-                    // ctx.fillRect(10, canvas.height - (12*((i.guns.length+1) - a.number+1)), 50, 10);
-                    if(ships.indexOf(i) === selected){ // Rendering reload time in canvas
-                        ctx.fillStyle = "rgb(150,255,150)";
-                        if(a.timeSinceReload / a.reloadTime === 1) ctx.fillStyle = "rgb(40,40,180)"; 
-                        ctx.fillRect(10, canvas.height - (12*((i.guns.length+1) - a.number+1)), 80*(a.timeSinceReload / a.reloadTime), 10);
-                    }
                     }
                 }
                 else{ // If either a target is not acquired or the ship's guns are being manually fired
                     for(let a of i.guns){
                         if(a.timeSinceReload < a.reloadTime) a.timeSinceReload++;
-                        // ctx.fillStyle = "white";
-                        // ctx.fillRect(10, canvas.height - (12*((i.guns.length+1) - a.number+1)), 50, 10);
-                        if(ships.indexOf(i) === selected){
-                            ctx.fillStyle = "rgb(150,255,150)";
-                            if(a.timeSinceReload / a.reloadTime === 1) ctx.fillStyle = "rgb(40,40,180)"; 
-                            ctx.fillRect(10, canvas.height - (12*((i.guns.length+1) - a.number+1)), 80*(a.timeSinceReload / a.reloadTime), 10);
-                        }
+                        
                     }
                 }
             }
@@ -546,6 +657,7 @@ function render(){
                 }
 
                 if(i.squadrons[j].status === "Flying"){
+                    particlesInAir[i.team] = true;
                     ctx.save();
 
                     let size = 1;
@@ -561,13 +673,13 @@ function render(){
                     ctx.save();
                     ctx.translate((i.squadrons[j].x-offsetX)-25, (i.squadrons[j].y-offsetY)-25);
                     ctx.rotate(i.squadrons[j].rotation);
-                    if(i.squadrons[j].hp > 1000) ctx.drawImage(i.squadrons[j].image, -15, -10, 30*size, 20*size);
+                    if(i.squadrons[j].number > 5) ctx.drawImage(i.squadrons[j].image, -15, -10, 30*size, 20*size);
                     ctx.restore();
                     
                     ctx.save();
                     ctx.translate((i.squadrons[j].x-offsetX)-25, (i.squadrons[j].y-offsetY)+25);
                     ctx.rotate(i.squadrons[j].rotation);
-                    if(i.squadrons[j].hp > 2000) ctx.drawImage(i.squadrons[j].image, -15, -10, 30*size, 20*size);
+                    if(i.squadrons[j].number > 10) ctx.drawImage(i.squadrons[j].image, -15, -10, 30*size, 20*size);
                     ctx.restore();
 
                     i.squadrons[j].x += Math.cos(i.squadrons[j].rotation)*i.squadrons[j].speed;
@@ -612,9 +724,9 @@ function render(){
 
                                     
                                     if(Math.sqrt((eX-i.squadrons[j].x)**2 + (eY-i.squadrons[j].y)**2) < 10){
-                                        let munsToDrop = i.squadrons[j].munitions < 10 ? i.squadrons[j].munitions : 10;
+                                        let munsToDrop = i.squadrons[j].munitions < 5 ? i.squadrons[j].munitions : 5;
                                         for(let z = 0; z < munsToDrop; z++){
-                                            fire(i.squadrons[j].x, i.squadrons[j].y, i.squadrons[j].rotation, 10, i.projectiles, 410, 2500);
+                                            fire(i.squadrons[j].x, i.squadrons[j].y, i.squadrons[j].rotation, 10, i.projectiles, 410, 500);
                                             i.squadrons[j].munitions--;
                                         }
                                         let _x = i.squadrons[j].x+(300*Math.cos(i.squadrons[j].rotation));
@@ -672,6 +784,7 @@ function render(){
                 // }
 
                     if(i.squadrons[j].status === "Flying"){
+                        particlesInAir[i.team] = true;
                         ctx.save();
 
                         ctx.translate(i.squadrons[j].x-offsetX, i.squadrons[j].y-offsetY);
@@ -722,6 +835,7 @@ function render(){
 
     for(let p of i.projectiles){
         if(p.visible === true){
+            particlesInAir[i.team] = true;
             if(p.distance > 0){
                 ctx.fillStyle = "black";
                 ctx.fillRect(p.x-(1+offsetX),p.y-(1+offsetY),2,2);
@@ -753,7 +867,7 @@ function render(){
                     let qY2 = q.y - (q.beam + (q.length-q.beam)*Math.sin(q.rotation*(Math.PI/180))*scale) > q.y + q.beam + (q.length-q.beam)*Math.sin(q.rotation*(Math.PI/180))*scale ? q.y - (q.beam + (q.length-q.beam)*Math.sin(q.rotation*(Math.PI/180))*scale) : q.y + q.beam + (q.length-q.beam)*Math.sin(q.rotation*(Math.PI/180))*scale;
                     if(p.x > qX1 && p.x < qX2 && p.y > qY1 && p.y < qY2){
                         q.hp -= p.damage;
-                        stats.push({text:`${i.name} hits ${q.name}, dealing some damage`,time:Date.now()});
+                        stats.push({text:`${i.name} hits ${q.name}, dealing ${p.damage} damage`,time:(Date.now()-startTime)});
                     }
                 }
             }
@@ -761,6 +875,41 @@ function render(){
     }
 
     }
+    
+    
+    if(hudEnabled){
+        for(let a of ships){
+            if(a.hp > 0){
+                let i;
+                let icon;
+                switch(a.type){
+                    case "Aircraft Carrier":
+                        icon = carrierIMG;
+                        break;
+                    case "Battleship":
+                        icon = battleshipIMG;
+                        break;
+                }
+                if(a.team === 0){
+                    i = numShipsA.indexOf(a);
+                    ctx.save();
+                    ctx.translate((canvas.width / 2) - 30*(i+1), 5);
+                    if(ships[selected] === a) ctx.drawImage(icon, -2.5, -1.25, 25, 12.5);
+                    else ctx.drawImage(icon, 0, 0, 20, 10);
+                    ctx.restore();
+                }
+                else{
+                    i = numShipsB.indexOf(a);
+                    ctx.save();
+                    ctx.translate((canvas.width / 2) + 30*(i+1) + 10, 10);
+                    ctx.rotate(Math.PI);
+                    if(ships[selected] === a) ctx.drawImage(icon, -10, -5, 25, 12.5);
+                    else ctx.drawImage(icon, -10, -5, 20, 10);
+                    ctx.restore();
+                }
+            }
+        }
+
         let wpnText;
         let wpnType;
         if(ships[selected].type !== "Aircraft Carrier"){
@@ -775,7 +924,7 @@ function render(){
         ctx.fillStyle = "Black";
         ctx.font = "16px Arial";
         ctx.fillText(wpnText, 10, canvas.height - (12*((wpnType.length+4))));
-        ctx.fillStyle = "rgba(255,255,255,1)"
+        !ships[selected].autofire ? ctx.fillStyle = "lightgray" : ctx.fillStyle = "white";
         ctx.fillRect(10, canvas.height - (12*((wpnType.length+3))), 100, 20);
         ctx.fillStyle = "black";
         ctx.font = "14px sans-serif";
@@ -789,11 +938,20 @@ function render(){
         ctx.font = "20px sans-serif";
         ctx.fillText('FIRE', 130 + ctx.measureText("FIRE").width / 4.5, canvas.height - 52.5);
 
+        !ships[selected].auto ? ctx.fillStyle = "lightgray" : ctx.fillStyle = "white";
+        let _y = ships[selected].auto ? "Yes" : "No";
+        ctx.font = "14px sans-serif";
+        ctx.fillRect(10, canvas.height - (12*((wpnType.length+8)))-2, ctx.measureText("Auto-steer : Yes").width+2, 20);
+        ctx.fillStyle = "black";
+        ctx.fillText(`Auto-steer : ${_y}`, 12, canvas.height - (12*((wpnType.length+7))));
+        // ctx.fillText(`Auto-steer : ${_y}`, 150, canvas.height);
+
         if(ships[selected].type === "Aircraft Carrier"){
             for(let i = 0; i < ships[selected].squadrons.length; i++){
                 ctx.fillStyle = "rgb(150,255,150)";
                 if(ships[selected].squadrons[i].status === "Deck") ctx.fillStyle = "rgb(200,200,100)"; 
-                else if(ships[selected].squadrons[i].timeSinceReload / ships[selected].squadrons[i].reloadTime === 1) ctx.fillStyle = "rgb(40,40,180)"; 
+                else if(ships[selected].squadrons[i].timeSinceReload / ships[selected].squadrons[i].reloadTime === 1 && ships[selected].squadrons[i].status === "Launching") ctx.fillStyle = "rgb(40,40,180)"; 
+                else if(ships[selected].squadrons[i].timeSinceReload / ships[selected].squadrons[i].reloadTime === 1 && ships[selected].squadrons[i].status === "Flying") ctx.fillStyle = "rgb(180,40,180)"; 
                 ctx.fillRect(10, canvas.height - (12*((ships[selected].squadrons.length+1) - i)), 80*(ships[selected].squadrons[i].timeSinceReload / ships[selected].squadrons[i].reloadTime), 10);
                 
                 ctx.fillStyle = "Black";
@@ -813,27 +971,91 @@ function render(){
                 ctx.fillText(planeText, 30, canvas.height - (12*((ships[selected].squadrons.length+1) - (i+1)))-2);
             }
         }
+        else{
+            // Rendering reload time in canvas
+            for(let a of ships[selected].guns){
+                ctx.fillStyle = "rgb(150,255,150)";
+                if(a.timeSinceReload / a.reloadTime === 1) ctx.fillStyle = "rgb(40,40,180)"; 
+                ctx.fillRect(10, canvas.height - (12*((ships[selected].guns.length+1) - a.number+1)), 80*(a.timeSinceReload / a.reloadTime), 10);
+                }
+            }
+    }
+
+    if(!particlesInAir[0] && !particlesInAir[1]){
+        if(shipsAlive[0]){
+            if(!shipsAlive[1]){ // A wins
+                pauseFunction();
+                document.querySelector('#victoryscreen').style.display = "block";
+                document.querySelector('#victoryscreen h1').innerHTML = `The ${team[0]} has won the battle!`
+                let ul = document.querySelector('#victoryscreen ul');
+                for(let x of stats){
+                    let li = document.createElement('li');
+                    li.innerHTML = Math.floor(x.time / 1000) + " seconds : " + x.text;
+                    ul.appendChild(li);
+                }
+            }
+            // else{
+            //     Both still alive
+            // }
+        }
+        else{
+            if(shipsAlive[1]){ // B wins
+                pauseFunction();
+                document.querySelector('#victoryscreen').style.display = "block";
+                document.querySelector('#victoryscreen h1').innerHTML = `The ${team[1]} has won the battle!`
+                let ul = document.querySelector('#victoryscreen ul');
+                for(let x of stats){
+                    let li = document.createElement('li');
+                    li.innerHTML = Math.floor(x.time / 1000) + " seconds : " + x.text;
+                    ul.appendChild(li);
+                }
+            }
+            else{
+                pauseFunction(); // Draw
+                document.querySelector('#victoryscreen').style.display = "block";
+                document.querySelector('#victoryscreen h1').innerHTML = `The ${team[0]} and ${team[1]} have annihilated each other...`
+                let ul = document.querySelector('#victoryscreen ul');
+                for(let x of stats){
+                    let li = document.createElement('li');
+                    li.innerHTML = Math.floor(x.time / 1000) + " seconds : " + x.text;
+                    ul.appendChild(li);
+                }
+            }
+        }
+    }
+    else if(!shipsAlive[0] && !shipsAlive[1]){
+        pauseFunction(); // Draw
+                document.querySelector('#victoryscreen').style.display = "block";
+                document.querySelector('#victoryscreen h1').innerHTML = `The ${team[0]} and ${team[1]} have annihilated each other...`
+                let ul = document.querySelector('#victoryscreen ul');
+                for(let x of stats){
+                    let li = document.createElement('li');
+                    li.innerHTML = Math.floor(x.time / 1000) + " seconds : " + x.text;
+                    ul.appendChild(li);
+                }
+    }
+    
+
     }     
-function move(e){
+function handleKeyPress(e){
     switch(e.keyCode){
         case 87:
             e.preventDefault();
-            if(ships[selected].speedSetting < 4) ships[selected].speedSetting++;
-            console.log("increase speed", ships[selected]);
+            if(!ships[selected].auto && ships[selected].team === playingAsTeam){
+                move(selected, "forward");
+            }
             break;
         case 68:
             e.preventDefault();
-            ships[selected].rotation+=1*Math.abs(ships[selected].speed);
-            if(ships[selected].rotation > 360) ships[selected].rotation -= 360; 
+            if(!ships[selected].auto && ships[selected].team === playingAsTeam) move(selected, "left");
             break;
         case 65:
             e.preventDefault();
-            ships[selected].rotation-=1*Math.abs(ships[selected].speed);
-            if(ships[selected].rotation < 0) ships[selected].rotation += 360; 
+            if(!ships[selected].auto && ships[selected].team === playingAsTeam) move(selected, "right");
             break;
         case 83:
             e.preventDefault();
-            if(ships[selected].speedSetting > -1) ships[selected].speedSetting--;
+            if(!ships[selected].auto && ships[selected].team === playingAsTeam) move(selected, "backward");
             break;
         case 37:
             e.preventDefault();
@@ -850,6 +1072,111 @@ function move(e){
         case 40:
             e.preventDefault();
             offsetY += 20;
+            break;
+        case 74:
+            e.preventDefault();
+            hudEnabled = hudEnabled ? false : true;
+            break;
+        case 75:
+            e.preventDefault();
+            gridEnabled = gridEnabled ? false : true;
+            break;
+        case 72:
+            e.preventDefault();
+            helpEnabled = helpEnabled ? false : true;
+            if(document.querySelector('#quitgame').style.display === "none") pauseFunction();
+            if(helpEnabled) document.querySelector('#help').style.display = "block";
+            else document.querySelector('#help').style.display = "none"; 
+            break;
+        case 80:
+            e.preventDefault();
+            if(document.querySelector('#quitgame').style.display === "none" && document.querySelector('#help').style.display === "none"){
+                pauseFunction();
+            }
+            break;
+        case 81:
+            e.preventDefault();
+            if(document.querySelector('#quitgame').style.display === "none" && !document.querySelector('#victoryscreen').style.display === "block"){
+                if(document.querySelector('#help').style.display === "block"){
+                    document.querySelector('#help').style.display = "none";
+                    helpEnabled = helpEnabled ? false : true;
+                }
+                else{
+                pauseFunction();
+                }
+                document.querySelector('#quitgame').style.display = "inline-block";
+            }
+            else{
+
+                document.querySelector('#victoryscreen').style.display = "none";
+                document.querySelector('#victoryscreen h1').innerHTML = "";
+                let listItemsToDrop = document.querySelectorAll('#victoryscreen ul li');
+                for(let x of listItemsToDrop) x.remove();
+                stats = [];
+                timeStart = 0;
+                [offsetX, offsetY] = [0, 0];
+                ships = [];
+                document.getElementById('pausedscreen').style.display = "none";
+                isPaused = false;
+                let shipsToDropA = document.querySelectorAll('#teamA li');
+                let shipsToDropB = document.querySelectorAll('#teamB li');
+            
+                for(let x of shipsToDropA) x.remove();
+                for(let x of shipsToDropB) x.remove();
+
+                document.querySelector('#quitgame').style.display = "none";
+                document.querySelector('video').play();
+                document.querySelector("main").style.display = "block";
+                canvas.style.display = "none";
+                
+                document.removeEventListener("keydown",(e)=>handleKeyPress(e), false);
+                document.removeEventListener("click", (e)=>getMousePos(e), false);
+                document.removeEventListener("dblclick",()=> cameraLock ? cameraLock = false : cameraLock = true);
+                selected = 0;
+                document.removeEventListener('mousemove', (e)=>scroll(e), false);
+                team = ["Team A", "Team B"];
+
+                document.getElementById('teamAName').value = team[0];
+                document.getElementById('teamBName').value = team[1];
+            }
+            break;
+        case 67:
+            e.preventDefault();
+            if(document.querySelector('#quitgame').style.display === "inline-block"){
+                document.querySelector('#quitgame').style.display = "none";
+                pauseFunction();
+            }
+            break;
+        case 192:
+            e.preventDefault();
+            selectedPlane = undefined;
+            break;
+        case 49:
+            e.preventDefault();
+            selectedPlane = 0;
+            break;
+        case 50:
+            e.preventDefault();
+            selectedPlane = 1;
+            break;
+        case 51:
+            e.preventDefault();
+            selectedPlane = 2;
+            break;
+        case 52:
+            e.preventDefault();
+            selectedPlane = 3;
+            break;
+        case 53:
+            e.preventDefault();
+            selectedPlane = 4;
+            break;
+        case 70:
+            e.preventDefault();
+            cameraLock ? cameraLock = false : cameraLock = true
+            break;
+        default:
+            console.log("keycode", e.keyCode)
             break;
     }
 }
@@ -877,6 +1204,40 @@ function fire(x,y,rotation,distance,projectiles,calibre,damage, isManual=false){
         i++;
     }
     if(!i) return console.log("failed")
+}
+
+function pauseFunction(){
+    isPaused = isPaused ? false : true;
+            if(isPaused){
+                document.getElementById('pausedscreen').style.display = "block";
+                window.clearInterval(intervalID);
+            }
+            else{
+                intervalID = window.setInterval(render, 33);
+                document.getElementById('pausedscreen').style.display = "none";
+            }
+}
+
+function move(shipIndex, direction){
+    switch(direction){
+        case "forward":
+            if(ships[shipIndex].speedSetting < 4) ships[shipIndex].speedSetting++;
+            console.log("increase speed", ships[shipIndex]);
+            break;
+        case "backward":
+            if(ships[shipIndex].speedSetting > -1) ships[shipIndex].speedSetting--;
+            break;
+        case "left":
+            ships[shipIndex].rotation+=1*Math.abs(ships[shipIndex].speed);
+            if(ships[shipIndex].rotation > 360) ships[shipIndex].rotation -= 360; 
+            break;
+        case "right":
+            ships[shipIndex].rotation-=1*Math.abs(ships[shipIndex].speed);
+            if(ships[shipIndex].rotation < 0) ships[shipIndex].rotation += 360; 
+            break;
+
+    }
+
 }
 
 // function launch(squadron){

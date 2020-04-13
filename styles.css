@@ -169,7 +169,7 @@ font-weight: inherit;
 text-align: center;
 }
 
-#switchTeam, #start{
+#switchTeam, #switchTeamPlayingAs, #start{
     border:0;
     display:inline-block;
     padding:0 1em;
@@ -182,7 +182,7 @@ text-align: center;
     cursor: pointer;
     /* height:100%; */
 }
-#switchTeam:hover, #start:hover{
+#switchTeam:hover, #switchTeamPlayingAs:hover, #start:hover{
     /* background-image:linear-gradient(to top, rgba(0,0,0,0.5),rgba(0,0,0,0.5)),url("us2.jfif"); */
     background-color:crimson;
     color:black;
@@ -207,4 +207,53 @@ section button{
 }
 section button:hover{
     text-decoration: underline;
+}
+
+#teamA li:hover, #teamB li:hover{
+    cursor:pointer;
+    color:crimson;
+    text-decoration: line-through;
+}
+#help{
+    position:fixed; 
+    top:20%; 
+    width:60%; 
+    margin:0 20%; 
+    background-color:white; 
+    z-index:4; 
+    text-align:left; 
+    border-radius:1em;
+}
+#help h1, #victoryscreen h1{
+    text-align: center;
+}
+#help h3, #victoryscreen h3{
+    margin:1em 1em 0 0.25em;
+}
+#help ul, #victoryscreen ul{
+    margin-left:1em;
+}
+#quitgame{
+    position:fixed;
+    top:45%; 
+    left:45%; 
+    width: fit-content; 
+    margin:0 auto;  
+    background-color:rgba(255,255,255,0.75); 
+    color:crimson; 
+    z-index:5; 
+    text-align:center; 
+    padding:0.5em; 
+    border-radius:1em;
+}
+#victoryscreen{
+    position: relative;; 
+    width:60%; 
+    margin:0 20%; 
+    background-color:white; 
+    display:none; 
+    z-index:4; 
+    text-align:left; 
+    border-radius:1em;
+    overflow-y: scroll;
 }
