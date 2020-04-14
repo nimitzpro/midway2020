@@ -6,6 +6,9 @@
 - ~~Center the prediction shots!!~~
 - ~~0' firing error~~ (working I believe)
 - Aircraft carriers - Torpedo bombers + fighters maybe
+- Torpedoes
+- Cruisers and Destroyers
+- AAA
 - CPU 
     - ~~Move forward~~
     - Turn around when hit map border

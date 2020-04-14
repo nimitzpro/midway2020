@@ -216,7 +216,7 @@ section button:hover{
 }
 #help{
     position:fixed; 
-    top:20%; 
+    top:10%; 
     width:60%; 
     margin:0 20%; 
     background-color:white; 

@@ -51,7 +51,7 @@ music.onended = () => {
 
 let [carrierIMG, battleshipIMG] = [new Image(), new Image()];
 
-let [akagiIMG,  kagaIMG, hiryuIMG, soryuIMG, enterpriseIMG, hornetIMG, yorktownIMG, yamatoIMG, iowaIMG, bismarckIMG, hoodIMG] = [new Image(), new Image(), new Image(), new Image(), new Image(), new Image(), new Image(), new Image(), new Image(), new Image(), new Image()];
+let [akagiIMG,  kagaIMG, hiryuIMG, soryuIMG, enterpriseIMG, hornetIMG, yorktownIMG, yamatoIMG, iowaIMG, bismarckIMG, hoodIMG, belfastIMG, suzuyaIMG, intrepidIMG] = [new Image(), new Image(), new Image(), new Image(), new Image(), new Image(), new Image(), new Image(), new Image(), new Image(), new Image(), new Image(), new Image(), new Image()];
 
 let [a6m2IMG, b5n2IMG, d3a1IMG, f4fIMG, sbdIMG, tbfIMG] = [new Image(), new Image(), new Image(), new Image(), new Image(), new Image()];
 
@@ -69,6 +69,9 @@ yamatoIMG.src = "battleships/yamato.png";
 iowaIMG.src = "battleships/iowa.png";
 bismarckIMG.src = "battleships/bismarck.png";
 hoodIMG.src = "battleships/hood.png";
+belfastIMG.src = "cruisers/belfast.png";
+suzuyaIMG.src = "cruisers/suzuya.png";
+intrepidIMG.src = "carriers/intrepid.png";
 
 a6m2IMG.src = "planes/a6m2.png";
 b5n2IMG.src = "planes/b5n2.png";
@@ -83,17 +86,20 @@ fireIMG.src = "fire_temp.png";
 // let akagi = 
 // let kaga =   
 let shipTypes = [
-    {autofire:true, range:2500, team:undefined, name:"Yamato",     nation:"Japan",                    type:"Battleship",       hp:97000, maxHP:97000, x:100,  y:100, beam:38.9, length:256,   maxSpeed:0.9,  speed:0, speedSetting:0, image:yamatoIMG,     rotation:0,  guns:[{number:1, x:50,y:0, calibre:460,reloadTime:1400,damage:7500, timeSinceReload:0},{number:2, x:50,y:7.5, calibre:460,reloadTime:1400,damage:7500, timeSinceReload:0},{number:3, x:50,y:15, calibre:460,reloadTime:1400,damage:7500, timeSinceReload:0},{number:4, x:40,y:0, calibre:460,reloadTime:1400,damage:7500, timeSinceReload:0}, {number:5, x:40,y:7.5, calibre:460,reloadTime:1400,damage:7500, timeSinceReload:0},{number:6, x:40,y:15, calibre:460,reloadTime:1400,  damage:7500, timeSinceReload:0},{number:7, x:10,y:0, calibre:460,reloadTime:1400,damage:7500, timeSinceReload:0},{number:8, x:10,y:7.5, calibre:460,reloadTime:1400,damage:7500, timeSinceReload:0},{number:9, x:10,y:15, calibre:460,reloadTime:1400,damage:7500, timeSinceReload:0}], projectiles:30},
-    {autofire:true, range:2500, team:undefined, name:"Iowa",       nation:"United States",            type:"Battleship",       hp:92000, maxHP:92000, x:100,  y:100, beam:33,   length:262,   maxSpeed:1.1,  speed:0, speedSetting:0, image:iowaIMG,       rotation:0,  guns:[{number:1, x:50,y:0, calibre:406,reloadTime:1000,damage:6000, timeSinceReload:0},{number:2, x:50,y:7.5, calibre:406,reloadTime:1000,damage:6000, timeSinceReload:0},{number:3, x:50,y:15, calibre:406,reloadTime:1000,damage:6000, timeSinceReload:0},{number:4, x:40,y:0, calibre:406,reloadTime:1000,damage:6000, timeSinceReload:0}, {number:5, x:40,y:7.5, calibre:406,reloadTime:1000,damage:6000, timeSinceReload:0},{number:6, x:40,y:15, calibre:406,reloadTime:1000,  damage:6000, timeSinceReload:0},{number:7, x:10,y:0, calibre:406,reloadTime:1000,damage:8000, timeSinceReload:0},{number:8, x:10,y:7.5, calibre:406,reloadTime:1000,damage:6000, timeSinceReload:0},{number:9, x:10,y:15, calibre:406,reloadTime:1000,damage:6000, timeSinceReload:0}], projectiles:30},
+    {autofire:true, range:3000, team:undefined, name:"Yamato",     nation:"Japan",                    type:"Battleship",       hp:97000, maxHP:97000, x:100,  y:100, beam:38.9, length:256,   maxSpeed:0.9,  speed:0, speedSetting:0, image:yamatoIMG,     rotation:0,  guns:[{number:1, x:50,y:0, calibre:460,reloadTime:1200,damage:7500, timeSinceReload:0},{number:2, x:50,y:7.5, calibre:460,reloadTime:1200,damage:7500, timeSinceReload:0},{number:3, x:50,y:15, calibre:460,reloadTime:1200,damage:7500, timeSinceReload:0},{number:4, x:40,y:0, calibre:460,reloadTime:1200,damage:7500, timeSinceReload:0}, {number:5, x:40,y:7.5, calibre:460,reloadTime:1200,damage:7500, timeSinceReload:0},{number:6, x:40,y:15, calibre:460,reloadTime:1200,  damage:7500, timeSinceReload:0},{number:7, x:10,y:0, calibre:460,reloadTime:1200,damage:7500, timeSinceReload:0},{number:8, x:10,y:7.5, calibre:460,reloadTime:1200,damage:7500, timeSinceReload:0},{number:9, x:10,y:15, calibre:460,reloadTime:1200,damage:7500, timeSinceReload:0}], projectiles:30},
+    {autofire:true, range:3000, team:undefined, name:"Iowa",       nation:"United States",            type:"Battleship",       hp:92000, maxHP:92000, x:100,  y:100, beam:33,   length:262,   maxSpeed:1.1,  speed:0, speedSetting:0, image:iowaIMG,       rotation:0,  guns:[{number:1, x:50,y:0, calibre:406,reloadTime:1000,damage:6000, timeSinceReload:0},{number:2, x:50,y:7.5, calibre:406,reloadTime:1000,damage:6000, timeSinceReload:0},{number:3, x:50,y:15, calibre:406,reloadTime:1000,damage:6000, timeSinceReload:0},{number:4, x:40,y:0, calibre:406,reloadTime:1000,damage:6000, timeSinceReload:0}, {number:5, x:40,y:7.5, calibre:406,reloadTime:1000,damage:6000, timeSinceReload:0},{number:6, x:40,y:15, calibre:406,reloadTime:1000,  damage:6000, timeSinceReload:0},{number:7, x:10,y:0, calibre:406,reloadTime:1000,damage:8000, timeSinceReload:0},{number:8, x:10,y:7.5, calibre:406,reloadTime:1000,damage:6000, timeSinceReload:0},{number:9, x:10,y:15, calibre:406,reloadTime:1000,damage:6000, timeSinceReload:0}], projectiles:30},
     {autofire:true, range:2500, team:undefined, name:"Bismarck",   nation:"Germany",                  type:"Battleship",       hp:80000, maxHP:80000, x:100,  y:100, beam:36,   length:241.6, maxSpeed:1,    speed:0, speedSetting:0, image:bismarckIMG,   rotation:0,  guns:[{number:1, x:50,y:0, calibre:380,reloadTime:900,damage:5000, timeSinceReload:0},{number:2, x:50,y:15, calibre:380, reloadTime:900,damage:5000, timeSinceReload:0}, {number:3, x:40,y:0, calibre:380,reloadTime:900,damage:5000, timeSinceReload:0}, {number:4, x:40,y:15, calibre:380,reloadTime:900,damage:5000, timeSinceReload:0},{number:5, x:20,y:0,  calibre:380,reloadTime:900,damage:5000, timeSinceReload:0},  {number:6, x:20,y:15, calibre:380,reloadTime:900,damage:5000, timeSinceReload:0},{number:7, x:10,y:0, calibre:380,reloadTime:900,damage:5000, timeSinceReload:0},{number:8, x:10,y:15, calibre:380,reloadTime:900,damage:5000, timeSinceReload:0}], projectiles:30},
     {autofire:true, range:2500, team:undefined, name:"Hood",       nation:"Great Britain",            type:"Battleship",       hp:80000, maxHP:80000, x:100,  y:100, beam:31.8, length:262.3, maxSpeed:1.06, speed:0, speedSetting:0, image:hoodIMG,       rotation:0,  guns:[{number:1, x:50,y:0, calibre:381,reloadTime:900,damage:5000, timeSinceReload:0},{number:2, x:50,y:15, calibre:381, reloadTime:900,damage:5000, timeSinceReload:0}, {number:3, x:40,y:0, calibre:381,reloadTime:900,damage:5000, timeSinceReload:0}, {number:4, x:40,y:15, calibre:381,reloadTime:900,damage:5000, timeSinceReload:0},{number:5, x:20,y:0,  calibre:381,reloadTime:900,damage:5000, timeSinceReload:0},  {number:6, x:20,y:15, calibre:381,reloadTime:900,damage:5000, timeSinceReload:0},{number:7, x:10,y:0, calibre:381,reloadTime:900,damage:5000, timeSinceReload:0},{number:8, x:10,y:15, calibre:381,reloadTime:900,damage:5000, timeSinceReload:0}], projectiles:30},     
     {autofire:true, deckIsFree: true, launchTimeDuration:200, launchTime:0, team:undefined, name:"Akagi",      nation:"Japan",         range:4000, type:"Aircraft Carrier", hp:52000, maxHP:52000, x:100,  y:100, beam:31.3, length:260.7, maxSpeed:1.06, speed:0, speedSetting:0, image:akagiIMG,      rotation:0, squadrons:[{status:"Hangar", name: "A6M2 'Zero-sen'", type:"Fighter", x:0, y:0, speed:4, rotation:0, hp:3000, range:4000, number:15, maxNumber:15, image:a6m2IMG, reloadTime:1000, timeSinceReload:0}, {status:"Hangar", name:"D3A1 'Val'",      type:"Dive Bomber", x:0, y:0, speed:4, rotation:0, hp:3000, range:4000, number:15, maxNumber:15, image:d3a1IMG,  reloadTime:1000, timeSinceReload:0}, {status:"Hangar", name:"B5N2 'Kate'",      type:"Torpedo Bomber", x:0, y:0, speed:4, rotation:0, hp:3000, range:4000, number:15, maxNumber:15, image:b5n2IMG,  reloadTime:1000, timeSinceReload:0}, {status:"Hangar", name:"B5N2 'Kate'",      type:"Torpedo Bomber", x:0, y:0, speed:4, rotation:0, hp:3000, range:4000, number:15, maxNumber:15, image:b5n2IMG,  reloadTime:1000, timeSinceReload:0}], projectiles:30},
-    {autofire:true, deckIsFree: true, launchTimeDuration:200, launchTime:0, team:undefined, name:"Kaga",       nation:"Japan",         range:4000, type:"Aircraft Carrier", hp:56000, maxHP:56000, x:1000, y:100, beam:30, length:225, maxSpeed:1.15, speed:0, speedSetting:0, image:kagaIMG,       rotation:0, squadrons:[{status:"Hangar", name: "A6M2 'Zero-sen'", type:"Fighter", x:0, y:0, speed:4, rotation:0,     hp:3000, range:4000, number:15, maxNumber:15, image:a6m2IMG, reloadTime:1000, timeSinceReload:0}, {status:"Hangar", name:"D3A1 'Val'",      type:"Dive Bomber", x:0, y:0, speed:4, rotation:0, hp:3000, range:4000, number:15, maxNumber:15, image:d3a1IMG,  reloadTime:1000, timeSinceReload:0}, {status:"Hangar", name:"B5N2 'Kate'",      type:"Torpedo Bomber", x:0, y:0, speed:4, rotation:0, hp:3000, range:4000, number:15, maxNumber:15, image:b5n2IMG,  reloadTime:1000, timeSinceReload:0}, {status:"Hangar", name:"B5N2 'Kate'",      type:"Torpedo Bomber", x:0, y:0, speed:4, rotation:0, hp:3000, range:4000, number:15, maxNumber:15, image:b5n2IMG,  reloadTime:1000, timeSinceReload:0}], projectiles:30},
-    {autofire:true, deckIsFree: true, launchTimeDuration:200, launchTime:0, team:undefined, name:"Hiryuu",     nation:"Japan",         range:4000, type:"Aircraft Carrier", hp:44000, maxHP:44000, x:1000, y:300, beam:30, length:225, maxSpeed:1.15, speed:0, speedSetting:0, image:hiryuIMG,      rotation:0, squadrons:[{status:"Hangar", name: "A6M2 'Zero-sen'", type:"Fighter", x:0, y:0, speed:4, rotation:0,     hp:3000, range:4000, number:15, maxNumber:15, image:a6m2IMG, reloadTime:1000, timeSinceReload:0}, {status:"Hangar", name:"D3A1 'Val'",      type:"Dive Bomber", x:0, y:0, speed:4, rotation:0, hp:3000, range:4000, number:15, maxNumber:15, image:d3a1IMG,  reloadTime:1000, timeSinceReload:0}, {status:"Hangar", name:"B5N2 'Kate'",      type:"Torpedo Bomber", x:0, y:0, speed:4, rotation:0, hp:3000, range:4000, number:15, maxNumber:15, image:b5n2IMG,  reloadTime:1000, timeSinceReload:0}, {status:"Hangar", name:"B5N2 'Kate'",      type:"Torpedo Bomber", x:0, y:0, speed:4, rotation:0, hp:3000, range:4000, number:15, maxNumber:15, image:b5n2IMG,  reloadTime:1000, timeSinceReload:0}], projectiles:30},
-    {autofire:true, deckIsFree: true, launchTimeDuration:200, launchTime:0, team:undefined, name:"Soryuu",     nation:"Japan",         range:4000, type:"Aircraft Carrier", hp:44000, maxHP:44000, x:1000, y:300, beam:30, length:225, maxSpeed:1.15, speed:0, speedSetting:0, image:soryuIMG,      rotation:0, squadrons:[{status:"Hangar", name: "A6M2 'Zero-sen'", type:"Fighter", x:0, y:0, speed:4, rotation:0,     hp:3000, range:4000, number:15, maxNumber:15, image:a6m2IMG, reloadTime:1000, timeSinceReload:0}, {status:"Hangar", name:"D3A1 'Val'",      type:"Dive Bomber", x:0, y:0, speed:4, rotation:0, hp:3000, range:4000, number:15, maxNumber:15, image:d3a1IMG,  reloadTime:1000, timeSinceReload:0}, {status:"Hangar", name:"B5N2 'Kate'",      type:"Torpedo Bomber", x:0, y:0, speed:4, rotation:0, hp:3000, range:4000, number:15, maxNumber:15, image:b5n2IMG,  reloadTime:1000, timeSinceReload:0}, {status:"Hangar", name:"B5N2 'Kate'",      type:"Torpedo Bomber", x:0, y:0, speed:4, rotation:0, hp:3000, range:4000, number:15, maxNumber:15, image:b5n2IMG,  reloadTime:1000, timeSinceReload:0}], projectiles:30},
-    {autofire:true, deckIsFree: true, launchTimeDuration:200, launchTime:0, team:undefined, name:"Enterprise", nation:"United States", range:4000, type:"Aircraft Carrier", hp:50000, maxHP:50000, x:1000, y:300, beam:30, length:225, maxSpeed:1.15, speed:0, speedSetting:0, image:enterpriseIMG, rotation:0, squadrons:[{status:"Hangar", name: "F4F-4 'Wildcat'", type:"Fighter", x:0, y:0, speed:4, rotation:0,     hp:3000, range:4000, number:15, maxNumber:15, image:f4fIMG, reloadTime:1000, timeSinceReload:0},  {status:"Hangar", name:"SBD 'Dauntless'", type:"Dive Bomber", x:0, y:0, speed:4, rotation:0, hp:3000, range:4000, number:15, maxNumber:15, image:sbdIMG,   reloadTime:1000, timeSinceReload:0}, {status:"Hangar", name:"SBD 'Dauntless'", type:"Dive Bomber", x:0, y:0, speed:4, rotation:0, hp:3000, range:4000, number:15, maxNumber:15, image:sbdIMG,   reloadTime:1000, timeSinceReload:0}, {status:"Hangar", name:"TBF 'Devastator'", type:"Torpedo Bomber", x:0, y:0, speed:4, rotation:0, hp:3000, range:4000, number:15, maxNumber:15, image:tbfIMG,   reloadTime:1000, timeSinceReload:0}], projectiles:30},
-    {autofire:true, deckIsFree: true, launchTimeDuration:200, launchTime:0, team:undefined, name:"Hornet",     nation:"United States", range:4000, type:"Aircraft Carrier", hp:50000, maxHP:50000, x:1000, y:300, beam:30, length:225, maxSpeed:1.15, speed:0, speedSetting:0, image:hornetIMG,     rotation:0, squadrons:[{status:"Hangar", name: "F4F-4 'Wildcat'", type:"Fighter", x:0, y:0, speed:4, rotation:0,     hp:3000, range:4000, number:15, maxNumber:15, image:f4fIMG, reloadTime:1000, timeSinceReload:0},  {status:"Hangar", name:"SBD 'Dauntless'", type:"Dive Bomber", x:0, y:0, speed:4, rotation:0, hp:3000, range:4000, number:15, maxNumber:15, image:sbdIMG,   reloadTime:1000, timeSinceReload:0}, {status:"Hangar", name:"SBD 'Dauntless'", type:"Dive Bomber", x:0, y:0, speed:4, rotation:0, hp:3000, range:4000, number:15, maxNumber:15, image:sbdIMG,   reloadTime:1000, timeSinceReload:0}, {status:"Hangar", name:"TBF 'Devastator'", type:"Torpedo Bomber", x:0, y:0, speed:4, rotation:0, hp:3000, range:4000, number:15, maxNumber:15, image:tbfIMG,   reloadTime:1000, timeSinceReload:0}], projectiles:30},
-    {autofire:true, deckIsFree: true, launchTimeDuration:200, launchTime:0, team:undefined, name:"Yorktown",   nation:"United States", range:4000, type:"Aircraft Carrier", hp:50000, maxHP:50000, x:1000, y:300, beam:30, length:225, maxSpeed:1.15, speed:0, speedSetting:0, image:yorktownIMG,   rotation:0, squadrons:[{status:"Hangar", name: "F4F-4 'Wildcat'", type:"Fighter", x:0, y:0, speed:4, rotation:0,     hp:3000, range:4000, number:15, maxNumber:15, image:f4fIMG, reloadTime:1000, timeSinceReload:0},  {status:"Hangar", name:"SBD 'Dauntless'", type:"Dive Bomber", x:0, y:0, speed:4, rotation:0, hp:3000, range:4000, number:15, maxNumber:15, image:sbdIMG,   reloadTime:1000, timeSinceReload:0}, {status:"Hangar", name:"SBD 'Dauntless'", type:"Dive Bomber", x:0, y:0, speed:4, rotation:0, hp:3000, range:4000, number:15, maxNumber:15, image:sbdIMG,   reloadTime:1000, timeSinceReload:0}, {status:"Hangar", name:"TBF 'Devastator'", type:"Torpedo Bomber", x:0, y:0, speed:4, rotation:0, hp:3000, range:4000, number:15, maxNumber:15, image:tbfIMG,   reloadTime:1000, timeSinceReload:0}], projectiles:30}
+    {autofire:true, deckIsFree: true, launchTimeDuration:200, launchTime:0, team:undefined, name:"Kaga",       nation:"Japan",         range:4000, type:"Aircraft Carrier", hp:56000, maxHP:56000, x:1000, y:100, beam:32.5, length:247.65, maxSpeed:0.93, speed:0, speedSetting:0, image:kagaIMG,       rotation:0, squadrons:[{status:"Hangar", name: "A6M2 'Zero-sen'", type:"Fighter", x:0, y:0, speed:4, rotation:0,     hp:3000, range:4000, number:15, maxNumber:15, image:a6m2IMG, reloadTime:1000, timeSinceReload:0}, {status:"Hangar", name:"D3A1 'Val'",      type:"Dive Bomber", x:0, y:0, speed:4, rotation:0, hp:3000, range:4000, number:15, maxNumber:15, image:d3a1IMG,  reloadTime:1000, timeSinceReload:0}, {status:"Hangar", name:"B5N2 'Kate'",      type:"Torpedo Bomber", x:0, y:0, speed:4, rotation:0, hp:3000, range:4000, number:15, maxNumber:15, image:b5n2IMG,  reloadTime:1000, timeSinceReload:0}, {status:"Hangar", name:"B5N2 'Kate'",      type:"Torpedo Bomber", x:0, y:0, speed:4, rotation:0, hp:3000, range:4000, number:15, maxNumber:15, image:b5n2IMG,  reloadTime:1000, timeSinceReload:0}], projectiles:30},
+    {autofire:true, deckIsFree: true, launchTimeDuration:200, launchTime:0, team:undefined, name:"Hiryuu",     nation:"Japan",         range:4000, type:"Aircraft Carrier", hp:44000, maxHP:44000, x:1000, y:300, beam:22.3, length:227.4, maxSpeed:1.13, speed:0, speedSetting:0, image:hiryuIMG,      rotation:0, squadrons:[{status:"Hangar", name: "A6M2 'Zero-sen'", type:"Fighter", x:0, y:0, speed:4, rotation:0,     hp:3000, range:4000, number:15, maxNumber:15, image:a6m2IMG, reloadTime:1000, timeSinceReload:0}, {status:"Hangar", name:"D3A1 'Val'",      type:"Dive Bomber", x:0, y:0, speed:4, rotation:0, hp:3000, range:4000, number:15, maxNumber:15, image:d3a1IMG,  reloadTime:1000, timeSinceReload:0}, {status:"Hangar", name:"B5N2 'Kate'",      type:"Torpedo Bomber", x:0, y:0, speed:4, rotation:0, hp:3000, range:4000, number:15, maxNumber:15, image:b5n2IMG,  reloadTime:1000, timeSinceReload:0}, {status:"Hangar", name:"B5N2 'Kate'",      type:"Torpedo Bomber", x:0, y:0, speed:4, rotation:0, hp:3000, range:4000, number:15, maxNumber:15, image:b5n2IMG,  reloadTime:1000, timeSinceReload:0}], projectiles:30},
+    {autofire:true, deckIsFree: true, launchTimeDuration:200, launchTime:0, team:undefined, name:"Soryuu",     nation:"Japan",         range:4000, type:"Aircraft Carrier", hp:44000, maxHP:44000, x:1000, y:300, beam:22.3, length:227.4, maxSpeed:1.13, speed:0, speedSetting:0, image:soryuIMG,      rotation:0, squadrons:[{status:"Hangar", name: "A6M2 'Zero-sen'", type:"Fighter", x:0, y:0, speed:4, rotation:0,     hp:3000, range:4000, number:15, maxNumber:15, image:a6m2IMG, reloadTime:1000, timeSinceReload:0}, {status:"Hangar", name:"D3A1 'Val'",      type:"Dive Bomber", x:0, y:0, speed:4, rotation:0, hp:3000, range:4000, number:15, maxNumber:15, image:d3a1IMG,  reloadTime:1000, timeSinceReload:0}, {status:"Hangar", name:"B5N2 'Kate'",      type:"Torpedo Bomber", x:0, y:0, speed:4, rotation:0, hp:3000, range:4000, number:15, maxNumber:15, image:b5n2IMG,  reloadTime:1000, timeSinceReload:0}, {status:"Hangar", name:"B5N2 'Kate'",      type:"Torpedo Bomber", x:0, y:0, speed:4, rotation:0, hp:3000, range:4000, number:15, maxNumber:15, image:b5n2IMG,  reloadTime:1000, timeSinceReload:0}], projectiles:30},
+    {autofire:true, deckIsFree: true, launchTimeDuration:200, launchTime:0, team:undefined, name:"Enterprise", nation:"United States", range:4000, type:"Aircraft Carrier", hp:50000, maxHP:50000, x:1000, y:300, beam:33, length:252.2, maxSpeed:1.08, speed:0, speedSetting:0, image:enterpriseIMG, rotation:0, squadrons:[{status:"Hangar", name: "F4F-4 'Wildcat'", type:"Fighter", x:0, y:0, speed:4, rotation:0,     hp:3000, range:4000, number:15, maxNumber:15, image:f4fIMG, reloadTime:1000, timeSinceReload:0},  {status:"Hangar", name:"SBD 'Dauntless'", type:"Dive Bomber", x:0, y:0, speed:4, rotation:0, hp:3000, range:4000, number:15, maxNumber:15, image:sbdIMG,   reloadTime:1000, timeSinceReload:0}, {status:"Hangar", name:"SBD 'Dauntless'", type:"Dive Bomber", x:0, y:0, speed:4, rotation:0, hp:3000, range:4000, number:15, maxNumber:15, image:sbdIMG,   reloadTime:1000, timeSinceReload:0}, {status:"Hangar", name:"TBF 'Devastator'", type:"Torpedo Bomber", x:0, y:0, speed:4, rotation:0, hp:3000, range:4000, number:15, maxNumber:15, image:tbfIMG,   reloadTime:1000, timeSinceReload:0}], projectiles:30},
+    {autofire:true, deckIsFree: true, launchTimeDuration:200, launchTime:0, team:undefined, name:"Hornet",     nation:"United States", range:4000, type:"Aircraft Carrier", hp:50000, maxHP:50000, x:1000, y:300, beam:33, length:252.2, maxSpeed:1.08, speed:0, speedSetting:0, image:hornetIMG,     rotation:0, squadrons:[{status:"Hangar", name: "F4F-4 'Wildcat'", type:"Fighter", x:0, y:0, speed:4, rotation:0,     hp:3000, range:4000, number:15, maxNumber:15, image:f4fIMG, reloadTime:1000, timeSinceReload:0},  {status:"Hangar", name:"SBD 'Dauntless'", type:"Dive Bomber", x:0, y:0, speed:4, rotation:0, hp:3000, range:4000, number:15, maxNumber:15, image:sbdIMG,   reloadTime:1000, timeSinceReload:0}, {status:"Hangar", name:"SBD 'Dauntless'", type:"Dive Bomber", x:0, y:0, speed:4, rotation:0, hp:3000, range:4000, number:15, maxNumber:15, image:sbdIMG,   reloadTime:1000, timeSinceReload:0}, {status:"Hangar", name:"TBF 'Devastator'", type:"Torpedo Bomber", x:0, y:0, speed:4, rotation:0, hp:3000, range:4000, number:15, maxNumber:15, image:tbfIMG,   reloadTime:1000, timeSinceReload:0}], projectiles:30},
+    {autofire:true, deckIsFree: true, launchTimeDuration:200, launchTime:0, team:undefined, name:"Yorktown",   nation:"United States", range:4000, type:"Aircraft Carrier", hp:50000, maxHP:50000, x:1000, y:300, beam:33, length:252.2, maxSpeed:1.08, speed:0, speedSetting:0, image:yorktownIMG,   rotation:0, squadrons:[{status:"Hangar", name: "F4F-4 'Wildcat'", type:"Fighter", x:0, y:0, speed:4, rotation:0,     hp:3000, range:4000, number:15, maxNumber:15, image:f4fIMG, reloadTime:1000, timeSinceReload:0},  {status:"Hangar", name:"SBD 'Dauntless'", type:"Dive Bomber", x:0, y:0, speed:4, rotation:0, hp:3000, range:4000, number:15, maxNumber:15, image:sbdIMG,   reloadTime:1000, timeSinceReload:0}, {status:"Hangar", name:"SBD 'Dauntless'", type:"Dive Bomber", x:0, y:0, speed:4, rotation:0, hp:3000, range:4000, number:15, maxNumber:15, image:sbdIMG,   reloadTime:1000, timeSinceReload:0}, {status:"Hangar", name:"TBF 'Devastator'", type:"Torpedo Bomber", x:0, y:0, speed:4, rotation:0, hp:3000, range:4000, number:15, maxNumber:15, image:tbfIMG,   reloadTime:1000, timeSinceReload:0}], projectiles:30},
+    {autofire:true, deckIsFree: true, launchTimeDuration:200, launchTime:0, team:undefined, name:"Intrepid",   nation:"United States", range:4000, type:"Aircraft Carrier", hp:62000, maxHP:62000, x:1000, y:300, beam:30, length:255, maxSpeed:1.1, speed:0, speedSetting:0, image:intrepidIMG,   rotation:0, squadrons:[{status:"Hangar", name: "F4F-4 'Wildcat'", type:"Fighter", x:0, y:0, speed:4, rotation:0,     hp:3000, range:4000, number:15, maxNumber:15, image:f4fIMG, reloadTime:1000, timeSinceReload:0},  {status:"Hangar", name:"SBD 'Dauntless'", type:"Dive Bomber", x:0, y:0, speed:4, rotation:0, hp:3000, range:4000, number:15, maxNumber:15, image:sbdIMG,   reloadTime:1000, timeSinceReload:0}, {status:"Hangar", name:"SBD 'Dauntless'", type:"Dive Bomber", x:0, y:0, speed:4, rotation:0, hp:3000, range:4000, number:15, maxNumber:15, image:sbdIMG,   reloadTime:1000, timeSinceReload:0}, {status:"Hangar", name:"SBD 'Dauntless'", type:"Dive Bomber", x:0, y:0, speed:4, rotation:0, hp:3000, range:4000, number:15, maxNumber:15, image:sbdIMG,   reloadTime:1000, timeSinceReload:0}, {status:"Hangar", name:"TBF 'Devastator'", type:"Torpedo Bomber", x:0, y:0, speed:4, rotation:0, hp:3000, range:4000, number:15, maxNumber:15, image:tbfIMG,   reloadTime:1000, timeSinceReload:0}], projectiles:30},
+    {autofire:true, range:2000, team:undefined, name:"Suzuya",     nation:"Japan",                    type:"Cruiser",       hp:40000, maxHP:40000, x:100,  y:100, beam:20.2, length:201.6,   maxSpeed:1.23,  speed:0, speedSetting:0, image:suzuyaIMG,     rotation:0,  guns:[{number:1, x:50,y:0, calibre:203,reloadTime:500,damage:2500, timeSinceReload:0},{number:2, x:50,y:15, calibre:203,reloadTime:500,damage:2500, timeSinceReload:0}, {number:3, x:40,y:0, calibre:203,reloadTime:500,damage:2500, timeSinceReload:0}, {number:4, x:40,y:15, calibre:203,reloadTime:500,damage:2500, timeSinceReload:0},{number:5, x:20,y:0,  calibre:203,reloadTime:500,damage:2500, timeSinceReload:0},  {number:6, x:20,y:15, calibre:203,reloadTime:500,damage:2500, timeSinceReload:0},{number:7, x:10,y:0, calibre:203,reloadTime:500,damage:2500, timeSinceReload:0},{number:8, x:10,y:15, calibre:203,reloadTime:500,damage:2500, timeSinceReload:0},{number:9, x:30,y:0, calibre:203,reloadTime:500,damage:2500, timeSinceReload:0},{number:10, x:30,y:15, calibre:203,reloadTime:500,damage:2500, timeSinceReload:0}], projectiles:30},
+    {autofire:true, range:2000, team:undefined, name:"Belfast",     nation:"Great Britain",                    type:"Cruiser",       hp:36000, maxHP:36000, x:100,  y:100, beam:19.3, length:187,   maxSpeed:1.06,  speed:0, speedSetting:0, image:belfastIMG,     rotation:0,  guns:[{number:1, x:50,y:0, calibre:152,reloadTime:300,damage:1500, timeSinceReload:0},{number:2, x:50,y:7.5, calibre:152,reloadTime:300,damage:1500, timeSinceReload:0},{number:3, x:50,y:15, calibre:152,reloadTime:300,damage:1500, timeSinceReload:0},{number:4, x:40,y:0, calibre:152,reloadTime:300,damage:1500, timeSinceReload:0}, {number:5, x:40,y:7.5, calibre:152,reloadTime:300,damage:1500, timeSinceReload:0},{number:6, x:40,y:15, calibre:152,reloadTime:300,damage:1500, timeSinceReload:0},{number:7, x:10,y:0, calibre:152,reloadTime:300,damage:1500, timeSinceReload:0},{number:8, x:10,y:7.5, calibre:152,reloadTime:300,damage:1500, timeSinceReload:0},{number:9, x:10,y:15, calibre:152,reloadTime:300,damage:1500, timeSinceReload:0},{number:10, x:5,y:0, calibre:152,reloadTime:300,damage:1500, timeSinceReload:0},{number:11, x:5,y:7.5, calibre:152,reloadTime:300,damage:1500, timeSinceReload:0},{number:12, x:5,y:15, calibre:152,reloadTime:300,damage:1500, timeSinceReload:0}], projectiles:30}
 ];
 
 let scenarios = [
@@ -149,8 +155,8 @@ function setup(){
 }
 
 function addShip(shipName, scenarioTeam){
-    console.log("Added",shipName, "to battle");
-    console.log("TEAM", scenarioTeam)
+    // console.log("Added",shipName, "to battle");
+    // console.log("TEAM", scenarioTeam)
     let teamElement;
     if(scenarioTeam){
         if(scenarioTeam === 0){
@@ -178,9 +184,9 @@ function addShip(shipName, scenarioTeam){
     if(ship.type === "Aircraft Carrier"){
         a = {auto:true, randomTime:Math.floor(Math.random()*2000), plannedRotation:undefined, autofire:ship.autofire, deckIsFree:ship.deckIsFree, launchTime:ship.launchTime, launchTimeDuration:ship.launchTimeDuration, range:ship.range, team:sTeam, name:ship.name, nation:ship.nation, type:ship.type, hp:ship.hp, maxHP: ship.maxHP, x:0, y:0, beam:ship.beam, length:ship.length, maxSpeed: ship.maxSpeed, speedSetting:0, speed:0, image:ship.image, rotation:0, squadrons:loopThroughPlanes(ship.squadrons), projectiles:projectiles(ship.projectiles)}
     }
-    else a = {auto:true, randomTime:Math.floor(Math.random()*2000), plannedRotation:undefined, idealFiringDistance:[500,2000], autofire:ship.autofire, range:ship.range, team:sTeam, name:ship.name, nation:ship.nation, type:ship.type, hp:ship.hp, maxHP: ship.maxHP, x:0, y:0, beam:ship.beam, length:ship.length, maxSpeed: ship.maxSpeed, speedSetting:0, speed:0, image:ship.image, rotation:0, guns:loopThrough(ship.guns), projectiles:projectiles(ship.projectiles)}
+    else a = {auto:true, randomTime:Math.floor(Math.random()*2000), plannedRotation:undefined, idealFiringDistance:[500,1500], autofire:ship.autofire, range:ship.range, team:sTeam, name:ship.name, nation:ship.nation, type:ship.type, hp:ship.hp, maxHP: ship.maxHP, x:0, y:0, beam:ship.beam, length:ship.length, maxSpeed: ship.maxSpeed, speedSetting:0, speed:0, image:ship.image, rotation:0, guns:loopThrough(ship.guns), projectiles:projectiles(ship.projectiles)}
     ships.push(a);
-    console.log(a);
+    // console.log(a);
 }
 
 function removeShipFromLists(shipName, team){
@@ -274,12 +280,12 @@ function getMousePos(e) {
                 let posX = Math.sin(i.rotation*(Math.PI/180))*(a.x*2); 
                 let posY = Math.cos(i.rotation*(Math.PI/180))*(a.y*2); 
                 let [finalY, finalX] = [i.y+posY, i.x+posX]; 
-                console.log(m.x,m.y)
-                console.log(posX,posY)
-                console.log(finalX, finalY)
+                // console.log(m.x,m.y)
+                // console.log(posX,posY)
+                // console.log(finalX, finalY)
                 let rotation = Math.atan(((m.y+offsetY)-(finalY))/((m.x+offsetX)-(finalX)));
                 if(finalX > (m.x+offsetX)) rotation = rotation + Math.PI;
-                console.log(rotation)
+                // console.log(rotation)
                 let distance = Math.sqrt((finalX-(m.x+offsetX))**2 + (finalY-(m.y+offsetY))**2);
 
                 fire(finalX, finalY, rotation, distance, i.projectiles, a.calibre, a.damage, true);
@@ -311,8 +317,8 @@ function getMousePos(e) {
                 let i;
                 if(a.team === 0){
                     i = numShipsA.indexOf(a);
-                    console.log((canvas.width / 2) - 30*(i+1) + " < "+m.x+" < " + (canvas.width / 2) - 30*(i+1)+20)
-                    console.log("5 < "+m.y+" < 10")
+                    // console.log((canvas.width / 2) - 30*(i+1) + " < "+m.x+" < " + (canvas.width / 2) - 30*(i+1)+20)
+                    // console.log("5 < "+m.y+" < 10")
                     if(m.x > (canvas.width / 2) - 30*(i+1) && m.x < (canvas.width / 2) - 30*(i+1)+20 && m.y > 0 && m.y < 20){
                         selected = ships.indexOf(a);
                         cameraLock = true;
@@ -331,7 +337,7 @@ function getMousePos(e) {
         }
 
         for(let q of ships){
-            console.log(m.x, m.y);
+            // console.log(m.x, m.y);
             // if(m.x <= i.x+i.length-offsetX && m.x >= i.x-offsetX && m.y >= i.y-offsetY && m.y <= i.y+i.beam-offsetY){
             //             selected = ships.indexOf(i);
             //             console.log("Selected ship",selected, "name : ", i.name);
@@ -532,10 +538,10 @@ function render(){
             ctx.fillRect(tX-offsetX, tY-offsetY,(i.hp/i.maxHP)*100,8);
         }
 
-        if(ships.indexOf(i) === selected){
+        if(ships.indexOf(i) === selected && ships[selected].team === playingAsTeam){
             ctx.fillStyle = "#005E0A";
         }
-        else if(i.team !== ships[selected].team) ctx.fillStyle = "red";
+        else if(i.team !== playingAsTeam) ctx.fillStyle = "red";
         else ctx.fillStyle = "black"; 
         
         ctx.font = "16px Arial";
@@ -601,7 +607,6 @@ function render(){
                     }
                 }
                 else if(eDistance > i.idealFiringDistance[1]){
-                    console.log("firing distance things",Math.atan((eY - i.y) / (eX - i.x)))
                     i.plannedRotation = Math.atan((eY - i.y) / (eX - i.x))*(Math.PI/180);
                     if(eX < i.x) i.plannedRotation += 180;
                     
@@ -655,7 +660,7 @@ function render(){
                                 afterTimeY = eY + (enemySpeed*Math.sin(enemyRotation*(Math.PI/180)) * timeToCurrentDistance); // Enemy y co-ord after t time has passed
 
                                 let enemyDistanceFromInitial = Math.sqrt((eX-afterTimeX)**2 + (eY-afterTimeY)**2); // Enemy distance from where it was initially
-
+                                console.log(ships[i])
                                 let epicAngle = Math.atan((afterTimeY-(eY))/(afterTimeX-(eX))); // Angle between initial and final enemy ship positions
                                 if(afterTimeX > eX) epicAngle = epicAngle + Math.PI; // Possible correction
 
@@ -669,7 +674,7 @@ function render(){
 
                                 // afterDistance = Math.sqrt((afterTimeX-(i.x+posX))**2 + (afterTimeY-(i.y+posY))**2);
 
-                                console.log(i.name, i.team, "with coords",finalX,finalY, "firing at enemy ", eX, eY, "angle: ", eRotation, "distance:", eDistance, "enemy speed:", enemySpeed, "enemy rotation:", enemyRotation);
+                                // console.log(i.name, i.team, "with coords",finalX,finalY, "firing at enemy ", eX, eY, "angle: ", eRotation, "distance:", eDistance, "enemy speed:", enemySpeed, "enemy rotation:", enemyRotation);
                                 fire(i.x+posX, i.y+posY, afterRotation, epicDistance, i.projectiles, a.calibre, a.damage);
                                 playSound("Ship Gun");
                             }
@@ -691,18 +696,14 @@ function render(){
         if(i.y + i.speed*Math.sin((i.rotation*Math.PI)/180) > 0 && i.y+i.speed*Math.sin((i.rotation*Math.PI)/180) < cHeight) i.y += i.speed*Math.sin((i.rotation*Math.PI)/180);
 
         if(i.auto && i.plannedRotation !== i.rotation){
-            console.log("Got to checker boi")
             if(Math.abs(i.plannedRotation - i.rotation) < 8){
-                console.log("Got to checker boi 1")
                 i.rotation = i.plannedRotation;
                 i.plannedRotation = undefined;
             } 
             else if(i.plannedRotation < i.rotation){
-                console.log("Got to checker boi 2")
             move(ships.indexOf(i), "left");
             }
             else if(i.plannedRotation > i.rotation){
-                console.log("Got to checker boi 3")
                 move(ships.indexOf(i), "right");
             }
         }
@@ -798,7 +799,7 @@ function render(){
 
                                     let [finalY, finalX] = [i.squadrons[j].y, i.squadrons[j].x];        // Initial position of shell(x,y)
                                     eRotation = Math.atan((eY-(finalY))/(eX-(finalX))); // Angle to enemy ship(initial)
-                                    // if(finalX > eX) eRotation = eRotation + Math.PI; // Possible correction to angle
+                                    if(finalX > eX) eRotation = eRotation + Math.PI; // Possible correction to angle
                                     // eDistance = Math.sqrt((eX-(finalX))**2+(eY-(finalY))**2); 
         
                                     timeToCurrentDistance = eDistance / i.squadrons[j].speed; // Time t
@@ -807,12 +808,12 @@ function render(){
         
                                     let enemyDistanceFromInitial = Math.sqrt((eX-afterTimeX)**2 + (eY-afterTimeY)**2); // Enemy distance from where it was initially
         
-                                    // let epicAngle = Math.atan((afterTimeY-(eY))/(afterTimeX-(eX))); // Angle between initial and final enemy ship positions
-                                    // if(afterTimeX > eX) epicAngle = epicAngle + Math.PI; // Possible correction
+                                    let epicAngle = Math.atan((afterTimeY-(eY))/(afterTimeX-(eX))); // Angle between initial and final enemy ship positions
+                                    if(afterTimeX > eX) epicAngle = epicAngle + Math.PI; // Possible correction
         
         
                                     afterRotation = Math.atan(((afterTimeY-Math.cos(a.rotation*(Math.PI/180))*(eBeam/2)*scale)-finalY)/((afterTimeX-Math.sin(a.rotation*(Math.PI/180))*(eLength/2)*scale)-finalX)); // Angle between final enemy pos and shell
-                                    // if(finalX > afterTimeX) afterRotation = afterRotation + Math.PI;
+                                    if(finalX > afterTimeX) afterRotation = afterRotation + Math.PI;
         
                                     let epicDistance = Math.sqrt(enemyDistanceFromInitial**2 + eDistance**2 - 2*eDistance*enemyDistanceFromInitial*Math.cos(epicAngle-eRotation))
                                     // Application of the formula a^2 = b^2 + c^2 - 2bcCos(A)
@@ -983,6 +984,9 @@ function render(){
                         icon = carrierIMG;
                         break;
                     case "Battleship":
+                        icon = battleshipIMG;
+                        break;
+                    default:
                         icon = battleshipIMG;
                         break;
                 }
@@ -1254,12 +1258,12 @@ function handleKeyPress(e){
                 document.querySelector("main").style.display = "block";
                 canvas.style.display = "none";
                 
-                // document.removeEventListener("keydown",(e)=>handleKeyPress(e), false);
-                // document.removeEventListener("click", (e)=>getMousePos(e), false);
+                document.removeEventListener("keydown",(e)=>handleKeyPress(e), false);
+                document.removeEventListener("click", (e)=>getMousePos(e), false);
                 // document.removeEventListener("dblclick",()=> cameraLock ? cameraLock = false : cameraLock = true);
                 // selected = 0;
                 // selectedPlane = undefined;
-                // document.removeEventListener('mousemove', (e)=>scroll(e), false);
+                document.removeEventListener('mousemove', (e)=>scroll(e), false);
                 // team = ["Team A", "Team B"];
 
                 document.getElementById('teamAName').value = team[0];
@@ -1329,8 +1333,8 @@ function handleKeyPress(e){
 }
 
 function fire(x,y,rotation,distance,projectiles,calibre,damage, isManual=false){
-    console.log("PROJECTILES",projectiles)
-    console.log("Fired");
+    // console.log("PROJECTILES",projectiles)
+    // console.log("Fired");
     let [rDS, rRS] = [Math.random() < 0.5 ? -1 : 1, Math.random() < 0.5 ? -1 : 1]
     let [randDistance, randRotation] = isManual ? [rDS*Math.random()*7, rRS*Math.random()*0.01] : [rDS*Math.random()*15, rRS*Math.random()*0.025];
     let i = 0;
@@ -1369,7 +1373,7 @@ function move(shipIndex, direction){
     switch(direction){
         case "forward":
             if(ships[shipIndex].speedSetting < 4) ships[shipIndex].speedSetting++;
-            console.log("increase speed", ships[shipIndex]);
+            // console.log("increase speed", ships[shipIndex]);
             break;
         case "backward":
             if(ships[shipIndex].speedSetting > -1) ships[shipIndex].speedSetting--;
