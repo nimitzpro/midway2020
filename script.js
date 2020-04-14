@@ -176,9 +176,9 @@ function addShip(shipName, scenarioTeam){
     let ship = shipTypes.find(x => x.name === shipName);
     let a;
     if(ship.type === "Aircraft Carrier"){
-        a = {auto:true, plannedRotation:undefined, autofire:ship.autofire, deckIsFree:ship.deckIsFree, launchTime:ship.launchTime, launchTimeDuration:ship.launchTimeDuration, range:ship.range, team:sTeam, name:ship.name, nation:ship.nation, type:ship.type, hp:ship.hp, maxHP: ship.maxHP, x:0, y:0, beam:ship.beam, length:ship.length, maxSpeed: ship.maxSpeed, speedSetting:0, speed:0, image:ship.image, rotation:0, squadrons:loopThroughPlanes(ship.squadrons), projectiles:projectiles(ship.projectiles)}
+        a = {auto:true, randomTime:Math.floor(Math.random()*2000), plannedRotation:undefined, autofire:ship.autofire, deckIsFree:ship.deckIsFree, launchTime:ship.launchTime, launchTimeDuration:ship.launchTimeDuration, range:ship.range, team:sTeam, name:ship.name, nation:ship.nation, type:ship.type, hp:ship.hp, maxHP: ship.maxHP, x:0, y:0, beam:ship.beam, length:ship.length, maxSpeed: ship.maxSpeed, speedSetting:0, speed:0, image:ship.image, rotation:0, squadrons:loopThroughPlanes(ship.squadrons), projectiles:projectiles(ship.projectiles)}
     }
-    else a = {auto:true, plannedRotation:undefined, idealFiringDistance:[500,2000], autofire:ship.autofire, range:ship.range, team:sTeam, name:ship.name, nation:ship.nation, type:ship.type, hp:ship.hp, maxHP: ship.maxHP, x:0, y:0, beam:ship.beam, length:ship.length, maxSpeed: ship.maxSpeed, speedSetting:0, speed:0, image:ship.image, rotation:0, guns:loopThrough(ship.guns), projectiles:projectiles(ship.projectiles)}
+    else a = {auto:true, randomTime:Math.floor(Math.random()*2000), plannedRotation:undefined, idealFiringDistance:[500,2000], autofire:ship.autofire, range:ship.range, team:sTeam, name:ship.name, nation:ship.nation, type:ship.type, hp:ship.hp, maxHP: ship.maxHP, x:0, y:0, beam:ship.beam, length:ship.length, maxSpeed: ship.maxSpeed, speedSetting:0, speed:0, image:ship.image, rotation:0, guns:loopThrough(ship.guns), projectiles:projectiles(ship.projectiles)}
     ships.push(a);
     console.log(a);
 }
@@ -585,6 +585,11 @@ function render(){
                         }
                     }
                 }
+            }
+            // ctx.fillText(`Auto-fire : ${_x}`, (canvas.width / 2) - 50, canvas.height - 4)
+
+            if(i.type !== "Aircraft Carrier"){ // If ship is not carrier
+
                 if(i.x < 10 || cWidth - i.x < 10 || i.y < 10 || cHeight - i.y < 10){
                     if(!i.plannedRotation || i.plannedRotation === i.rotation){
                         if(Math.random() < 0.5){
@@ -598,19 +603,30 @@ function render(){
                 else if(eDistance > i.idealFiringDistance[1]){
                     console.log("firing distance things",Math.atan((eY - i.y) / (eX - i.x)))
                     i.plannedRotation = Math.atan((eY - i.y) / (eX - i.x))*(Math.PI/180);
-                    // if(eX > i.x) i.plannedRotation += 180;
-                    i.plannedRotation = i.plannedRotation < 0 ? i.plannedRotation + 360 : i.plannedRotation;
+                    if(eX < i.x) i.plannedRotation += 180;
+                    
+
                 }
-                else if(edistance < i.idealFiringDistance[0]){
+                else if(eDistance < i.idealFiringDistance[0]){
                     i.plannedRotation = Math.atan((eY - i.y) / (eX - i.x))*(Math.PI/180);
-                    i.plannedRotation += 180;
-                    i.plannedRotation = i.plannedRotation < 0 ? i.plannedRotation + 360 : i.plannedRotation;
-
+                    let rand = Math.random();
+                    rand < 0.5 ? i.plannedRotation += 180 : i.plannedRotation -= 180;
+                    if(eX < i.x) i.plannedRotation += 180;
                 }
-            }
-            // ctx.fillText(`Auto-fire : ${_x}`, (canvas.width / 2) - 50, canvas.height - 4)
+                else{
+                    if(i.randomTime > 0){
+                        i.randomTime--;
+                    }
+                    else{
+                        i.randomTime = Math.floor(Math.random()*2000);
+                        let randomAngle = Math.floor(Math.random()*720);
+                        randomAngle = randomAngle < 360 ? randomAngle : 720 - randomAngle;
+                        i.plannedRotation = i.rotation+randomAngle;
+                    }
+                }
+                i.plannedRotation = i.plannedRotation < 0 ? i.plannedRotation + 360 : i.plannedRotation;
+                i.plannedRotation = i.plannedRotation > 360 ? i.plannedRotation - 360 : i.plannedRotation;
 
-            if(i.type !== "Aircraft Carrier"){ // If ship is not carrier
                 if(targetAcquired && i.autofire && i.range > eDistance){ // Check if enemy in range and ship is automatically firing
 
                     // if(Math.abs(eDistance < ))
@@ -641,7 +657,7 @@ function render(){
                                 let enemyDistanceFromInitial = Math.sqrt((eX-afterTimeX)**2 + (eY-afterTimeY)**2); // Enemy distance from where it was initially
 
                                 let epicAngle = Math.atan((afterTimeY-(eY))/(afterTimeX-(eX))); // Angle between initial and final enemy ship positions
-                                if(eX > afterTimeX) epicAngle = epicAngle + Math.PI; // Possible correction
+                                if(afterTimeX > eX) epicAngle = epicAngle + Math.PI; // Possible correction
 
 
                                 afterRotation = Math.atan(((afterTimeY)-(finalY))/((afterTimeX)-(finalX))); // Angle between final enemy pos and shell
@@ -782,7 +798,7 @@ function render(){
 
                                     let [finalY, finalX] = [i.squadrons[j].y, i.squadrons[j].x];        // Initial position of shell(x,y)
                                     eRotation = Math.atan((eY-(finalY))/(eX-(finalX))); // Angle to enemy ship(initial)
-                                    if(finalX > eX) eRotation = eRotation + Math.PI; // Possible correction to angle
+                                    // if(finalX > eX) eRotation = eRotation + Math.PI; // Possible correction to angle
                                     // eDistance = Math.sqrt((eX-(finalX))**2+(eY-(finalY))**2); 
         
                                     timeToCurrentDistance = eDistance / i.squadrons[j].speed; // Time t
@@ -791,12 +807,12 @@ function render(){
         
                                     let enemyDistanceFromInitial = Math.sqrt((eX-afterTimeX)**2 + (eY-afterTimeY)**2); // Enemy distance from where it was initially
         
-                                    let epicAngle = Math.atan((afterTimeY-(eY))/(afterTimeX-(eX))); // Angle between initial and final enemy ship positions
-                                    if(afterTimeX > eX) epicAngle = epicAngle + Math.PI; // Possible correction
+                                    // let epicAngle = Math.atan((afterTimeY-(eY))/(afterTimeX-(eX))); // Angle between initial and final enemy ship positions
+                                    // if(afterTimeX > eX) epicAngle = epicAngle + Math.PI; // Possible correction
         
         
                                     afterRotation = Math.atan(((afterTimeY-Math.cos(a.rotation*(Math.PI/180))*(eBeam/2)*scale)-finalY)/((afterTimeX-Math.sin(a.rotation*(Math.PI/180))*(eLength/2)*scale)-finalX)); // Angle between final enemy pos and shell
-                                    if(finalX > afterTimeX) afterRotation = afterRotation + Math.PI;
+                                    // if(finalX > afterTimeX) afterRotation = afterRotation + Math.PI;
         
                                     let epicDistance = Math.sqrt(enemyDistanceFromInitial**2 + eDistance**2 - 2*eDistance*enemyDistanceFromInitial*Math.cos(epicAngle-eRotation))
                                     // Application of the formula a^2 = b^2 + c^2 - 2bcCos(A)
@@ -1192,6 +1208,31 @@ function handleKeyPress(e){
                     music.pause();
                     music.currentTime = 0;
                 }
+                canvas;
+                ctx;
+                ships = [];
+                numShipsA = [];
+                numShipsB = [];
+                selected;
+                selectedPlane;
+                playingAsTeam = 0;
+                team = ["Team A","Team B"];
+                selectedTeam = 0;
+                scale = 0.6;
+                offsetX = 0;
+                offsetY = 0;
+                cWidth;
+                cHeight;
+                cameraLock = true;
+                isFiringManually = false;
+                helpEnabled = false;
+                hudEnabled = true;
+                gridEnabled = true;
+                isPaused = false;
+                intervalID;
+                startTime;
+                playMusic = false;
+                muteSound = false;
                 document.querySelector('#victoryscreen').style.display = "none";
                 document.querySelector('#victoryscreen h1').innerHTML = "";
                 let listItemsToDrop = document.querySelectorAll('#victoryscreen ul li');
@@ -1199,7 +1240,7 @@ function handleKeyPress(e){
                 stats = [];
                 timeStart = 0;
                 [offsetX, offsetY] = [0, 0];
-                ships = [];
+                // ships = [];
                 document.getElementById('pausedscreen').style.display = "none";
                 isPaused = false;
                 let shipsToDropA = document.querySelectorAll('#teamA li');
@@ -1213,18 +1254,18 @@ function handleKeyPress(e){
                 document.querySelector("main").style.display = "block";
                 canvas.style.display = "none";
                 
-                document.removeEventListener("keydown",(e)=>handleKeyPress(e), false);
-                document.removeEventListener("click", (e)=>getMousePos(e), false);
-                document.removeEventListener("dblclick",()=> cameraLock ? cameraLock = false : cameraLock = true);
-                selected = 0;
-                selectedPlane = undefined;
-                document.removeEventListener('mousemove', (e)=>scroll(e), false);
-                team = ["Team A", "Team B"];
+                // document.removeEventListener("keydown",(e)=>handleKeyPress(e), false);
+                // document.removeEventListener("click", (e)=>getMousePos(e), false);
+                // document.removeEventListener("dblclick",()=> cameraLock ? cameraLock = false : cameraLock = true);
+                // selected = 0;
+                // selectedPlane = undefined;
+                // document.removeEventListener('mousemove', (e)=>scroll(e), false);
+                // team = ["Team A", "Team B"];
 
                 document.getElementById('teamAName').value = team[0];
                 document.getElementById('teamBName').value = team[1];
 
-                music.currentTime = 0;
+                // music.currentTime = 0;
             }
             break;
         case 67:
