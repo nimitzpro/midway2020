@@ -13,7 +13,7 @@
     - Other
 - Scaling
 - Spotting
-- Audio
+- Make audio sound based on distance and more than one at a time
 - Collision mechanics
 - ~~Make pause button work~~
 

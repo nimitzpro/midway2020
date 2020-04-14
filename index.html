@@ -45,6 +45,7 @@
         </section>
         <section>
             <h2>Press H for controls when in game.</h2>
+            <h2>Play Music? <input type="checkbox" name="playMusic" id="playMusic" onclick="toggleMusic()"/></h2>
         </section>
     </main>
     <div style="overflow-x:hidden; overflow-y: hidden;"><canvas></canvas></div>
@@ -81,14 +82,17 @@
             <li>J hides the GUI</li>
             <li>K hides the grid</li>
             <li>Press P to pause the game</li>
+            <li>, - Play music</li>
+            <li>. - Pause music</li>
+            <li>/ - Skip track</li>
+            <li>M - Mute all sound</li>
+
         </ul>
         <h3 style="text-align: center; color:crimson;">Press Q to end the game and go to the home screen</h3>
     </div>
     <div id="pausedscreen" style="top:0; left:0;width:100%; height:100%; background-color: rgba(0,0,0,0.25); z-index:3; position:fixed; display:none; text-align:center;">
         <div id="victoryscreen" style="display:none;">
             <h1></h1>
-            <h3>Battle logs</h3>
-            <ul></ul>
         </div>
     </div>
     <h2 id="quitgame" style="display:none;"><strong>Quit game?<br /> Q = Quit, C = Cancel</strong></h2>

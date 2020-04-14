@@ -227,10 +227,10 @@ section button:hover{
 #help h1, #victoryscreen h1{
     text-align: center;
 }
-#help h3, #victoryscreen h3{
+#help h3{
     margin:1em 1em 0 0.25em;
 }
-#help ul, #victoryscreen ul{
+#help ul{
     margin-left:1em;
 }
 #quitgame{
@@ -247,13 +247,13 @@ section button:hover{
     border-radius:1em;
 }
 #victoryscreen{
-    position: relative;; 
+    position: relative; 
     width:60%; 
-    margin:0 20%; 
+    top:40%;
+    margin:0 auto; 
     background-color:white; 
-    display:none; 
     z-index:4; 
     text-align:left; 
     border-radius:1em;
-    overflow-y: scroll;
+    /* overflow-y: scroll; */
 }
