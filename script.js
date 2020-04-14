@@ -174,7 +174,7 @@ function addShip(shipName, scenarioTeam){
             teamElement = document.querySelector("#teamB");
         }
     }
-    let sTeam = (scenarioTeam ? scenarioTeam : selectedTeam);
+    let sTeam = ((scenarioTeam !== undefined) ? scenarioTeam : selectedTeam);
     let li = document.createElement('li');
     li.innerHTML = shipName;
     li.setAttribute(`onclick`,`removeShipFromLists("${shipName}", ${sTeam})`);
